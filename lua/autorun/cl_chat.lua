@@ -292,6 +292,8 @@ function eChat.showBox()
 	eChat.frame:MakePopup()
 	eChat.entry:RequestFocus()
 	
+	eChat.chatLog:GotoTextEnd()
+	
 	-- Make sure other addons know we are chatting
 	gamemode.Call("StartChat")
 end
