@@ -15,6 +15,7 @@ eChat.config = {
 	timeStamps = true,
 	position = 1,	
 	fadeTime = 12,
+	seeChatTags = true
 }
 
 surface.CreateFont( "eChat_18", {
@@ -336,11 +337,7 @@ function eChat.openSettings()
 		derma.SkinHook( "Paint", "TextEntry", self, w, h )
 	end
 	
-	--[[local checkbox2 = vgui.Create("DCheckBox", eChat.frameS ) 
-	checkbox2:SetPos(label2:GetWide() + 15, 72)
-	checkbox2:SetValue( eChat.config.seeChatTags )
-	
-	local label3 = vgui.Create("DLabel", eChat.frameS)
+	--[[local label3 = vgui.Create("DLabel", eChat.frameS)
 	label3:SetText( "Use chat tags: " )
 	label3:SetFont( "eChat_18")
 	label3:SizeToContents()
@@ -348,7 +345,7 @@ function eChat.openSettings()
 	
 	local checkbox3 = vgui.Create("DCheckBox", eChat.frameS ) 
 	checkbox3:SetPos(label3:GetWide() + 15, 102)
-	checkbox3:SetValue( eChat.config.useChatTag )]]
+	checkbox3:SetValue( eChat.config.seeChatTags )]]
 	
 	local save = vgui.Create("DButton", eChat.frameS)
 	save:SetText("Save")
@@ -420,16 +417,16 @@ function chat.AddText(...)
 			local spacing = 5
 			eChat.chatLog:AppendFunc(function(h)
 				local panel = vgui.Create( "AvatarImage" )
-				panel:SetSize(h, h)
+				panel:SetSize(h, h-1)
 				panel:SetPlayer( ply, 16 )
 				return {panel = panel, h = h, w = h+spacing}
 			end)
 		
-			if eChat.config.seeChatTags and ply:GetNWBool("eChat_tagEnabled", false) then
-				local col = ply:GetNWString("eChat_tagCol", "255 255 255")
-				local tbl = string.Explode(" ", col )
-				eChat.chatLog:InsertColorChange( tbl[1], tbl[2], tbl[3], 255 )
-				eChat.chatLog:AppendText( "["..ply:GetNWString("eChat_tag", "N/A").."] ")
+			if eChat.config.seeChatTags then
+				local col = ply:GetChatTagColor()
+				local tbl = col:ToTable()
+				eChat.chatLog:InsertColorChange( tbl[1], tbl[2], tbl[3], tbl[4] )
+				eChat.chatLog:AppendText( "["..ply:GetChatTag().."] ")
 			end
 			
 			local col = GAMEMODE:GetTeamColor( obj )
@@ -438,12 +435,16 @@ function chat.AddText(...)
 		end
 	end
 	
-	for wrds, img in pairs( eChat.Emojis ) do
-		local e_st, e_en = string.find( eChat.chatLog.StoredText, wrds )
-		if e_st then
-			eChat.chatLog:AppendImage( {mat = Material(img), w = 16, h = 16})
+	--Check and add emojis
+	if eChat.chatLog.StoredText ~= nil then
+		for wrds, img in pairs( eChat.Emojis ) do
+			local e_st, e_en = string.find( eChat.chatLog.StoredText, wrds )
+			if e_st then
+				eChat.chatLog:AppendImage( {mat = Material(img), w = 16, h = 16})
+			end
 		end
 	end
+	
 	eChat.chatLog:AppendText("\n")
 	
 	eChat.chatLog:SetVisible( true )
