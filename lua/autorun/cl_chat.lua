@@ -460,7 +460,7 @@ function chat.AddText(...)
 		end
 	end
 	
-	if lastply.StoredText ~= nil then
+	if ( lastply and lastply:IsValid() ) and lastply.StoredText ~= nil then
 		--Check and add emojis
 		--TODO: Setup support for appending html panels
 		for wrds, img in pairs( eChat.Emojis ) do
@@ -497,8 +497,8 @@ function chat.AddText(...)
 	
 			return {panel = panel, h = h, w = h}
 		end)]]
+		lastply.StoredText = nil
 	end
-	lastply.StoredText = nil
 	
 	eChat.chatLog:AppendText("\n")
 	
