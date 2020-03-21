@@ -1,10 +1,4 @@
 hook.Add( "PlayerSay", "FilterEmonjis", function( ply, text )
-	local heckStart, heckEnd = string.find( text:lower(), "heck" )
-	if heckStart then
-		local civilText = string.sub( text, 1, heckStart - 1 ) .. "****" .. string.sub( text, heckEnd + 1 )
-		return civilText
-	end
-	
 	for wrds, img in pairs( eChat.Emojis ) do
 		local e_st, e_en = string.find( text, wrds )
 		if e_st then
