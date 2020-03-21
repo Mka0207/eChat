@@ -7,6 +7,14 @@ if SERVER then
 	return
 end
 
+timer.Simple(5, function()
+	if GAMEMODE_NAME != 'terrortown' then
+		hook.Remove( 'OnPlayerChat', 'FWKZT.ChatTags.AddTag' )
+	else
+		hook.Remove( 'OnPlayerChat', 'FWKZT.ChatTags.AddTag.TTT' )
+	end
+end )
+
 eChat = {}
 
 include( 'autorun/sh_chat.lua' )
@@ -17,6 +25,15 @@ eChat.config = {
 	fadeTime = 12,
 	seeChatTags = true
 }
+
+surface.CreateFont( "eChat_Links", {
+	font = "Verdana",
+	size = 16,
+	weight = 500,
+	underline = false,
+	antialias = false,
+	shadow = true
+} )
 
 surface.CreateFont( "eChat_18", {
 	font = "Roboto Lt",
@@ -157,6 +174,15 @@ function eChat.buildBox()
 		self:SetFontInternal("ChatFont")
 		self:SetFGColor( color_white )
 	end
+	-- Handle any commands we get from the panel
+	--[[eChat.chatLog.ActionSignal = function( signalName, signalValue )
+		print('this ran')
+		if ( signalName == "TextClicked" ) then
+			if ( signalValue == "OpenSite" ) then
+				gui.OpenURL( eChat.chatLog.StoredText ) 
+			end
+		end
+	end]]
 	eChat.oldPaint2 = eChat.chatLog.Paint
 	
 	--[[local outlinecolour = Color( 0, 0, 0 )
@@ -409,9 +435,12 @@ function chat.AddText(...)
 		elseif obj:IsPlayer() then
 			local ply = obj
 			
+			--TODO: Add option for selecting 24hr or 12hr time formats.
 			if eChat.config.timeStamps then
-				eChat.chatLog:InsertColorChange( 130, 130, 130, 255 )
-				eChat.chatLog:AppendText( "["..os.date("%X").."] ")
+				local d = os.date("*t")
+				local time_txt = ("%02d:%02d"):format(((d.hour % 24) - 1) % 12 + 1, d.min)
+				eChat.chatLog:InsertColorChange( 77,255,0, 255 )
+				eChat.chatLog:AppendText( "["..time_txt.." "..os.date("%p").."] ")
 			end
 			
 			local spacing = 5
@@ -435,13 +464,31 @@ function chat.AddText(...)
 		end
 	end
 	
-	--Check and add emojis
 	if eChat.chatLog.StoredText ~= nil then
+		--Check and add emojis
 		for wrds, img in pairs( eChat.Emojis ) do
 			local e_st, e_en = string.find( eChat.chatLog.StoredText, wrds )
 			if e_st then
 				eChat.chatLog:AppendImage( {mat = Material(img), w = 16, h = 16})
 			end
+		end
+		--Only fwkzt clickable links.
+		local http_start, http_end = string.find( eChat.chatLog.StoredText, "https://fwkzt.com" )
+		if http_start then
+			eChat.chatLog:AppendFunc(function(h)
+				local panel = vgui.Create( "DLabel" )
+				panel:SetFont( "eChat_Links" )
+				local url = string.sub( eChat.chatLog.StoredText, http_start )
+				panel:SetText( url )
+				panel:SetTextColor( Color( 66, 221, 245 ) )
+				panel:SizeToContents()
+				panel:Center()
+				panel:SetMouseInputEnabled( true )
+				function panel:DoClick()
+					gui.OpenURL( url )
+				end
+				return {panel = panel, h = h, w = h}
+			end)
 		end
 	end
 	

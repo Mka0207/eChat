@@ -12,4 +12,9 @@ hook.Add( "PlayerSay", "FilterEmonjis", function( ply, text )
 			return clean_text
 		end
 	end
+	
+	--TODO: only pass non url text.
+	--[[if string.match( text, "^[https//:]+%w+%.%w+[/%w%.]+$") then
+		return " "
+	end]]
 end )
