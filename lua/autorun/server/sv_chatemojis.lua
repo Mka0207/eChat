@@ -2,6 +2,8 @@ util.AddNetworkString( "NetWork_StoreText" )
 
 hook.Add( "PlayerSay", "FilterEmonjis", function( ply, text )
 
+	PrintMessage(HUD_PRINTCONSOLE, "["..ply:GetChatTag().."] "..ply:Nick().. ": "..text)
+
 	net.Start("NetWork_StoreText")
 		net.WriteEntity( ply )
 		net.WriteString( text )
