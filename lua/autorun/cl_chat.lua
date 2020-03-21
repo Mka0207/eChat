@@ -10,7 +10,7 @@ end
 eChat = {}
 
 eChat.config = {
-	timeStamps = true,
+	timeStamps = false,
 	position = 1,	
 	fadeTime = 12,
 }
@@ -20,8 +20,7 @@ surface.CreateFont( "eChat_18", {
 	size = 18,
 	weight = 500,
 	antialias = true,
-	shadow = true,
-	extended = true,
+	shadow = true
 } )
 
 surface.CreateFont( "eChat_16", {
@@ -29,8 +28,6 @@ surface.CreateFont( "eChat_16", {
 	size = 16,
 	weight = 500,
 	antialias = true,
-	shadow = true,
-	extended = true,
 } )
 
 --// Prevents errors if the script runs too early, which it will
@@ -49,11 +46,8 @@ function eChat.buildBox()
 	eChat.frame:SetSize( ScrW()*0.375, ScrH()*0.25 )
 	eChat.frame:SetTitle("")
 	eChat.frame:ShowCloseButton( false )
-	eChat.frame:SetDraggable( true )
-	eChat.frame:SetSizable( true )
+	eChat.frame:SetDraggable( false )
 	eChat.frame:SetPos( ScrW()*0.0116, (ScrH() - eChat.frame:GetTall()) - ScrH()*0.177)
-	eChat.frame:SetMinWidth( 300 )
-	eChat.frame:SetMinHeight( 100 )
 	eChat.frame.Paint = function( self, w, h )
 		eChat.blur( self, 10, 20, 255 )
 		draw.RoundedBox( 0, 0, 0, w, h, Color( 30, 30, 30, 200 ) )
@@ -143,7 +137,7 @@ function eChat.buildBox()
 		end
 	end
 
-	eChat.chatLog = vgui.Create("RichText", eChat.frame) 
+	eChat.chatLog = vgui.Create("DFancyText", eChat.frame) 
 	eChat.chatLog:SetSize( eChat.frame:GetWide() - 10, eChat.frame:GetTall() - 60 )
 	eChat.chatLog:SetPos( 5, 30 )
 	eChat.chatLog.Paint = function( self, w, h )
@@ -157,14 +151,32 @@ function eChat.buildBox()
 				self:SetVisible( true )
 			end
 		end
-		self:SetSize( eChat.frame:GetWide() - 10, eChat.frame:GetTall() - eChat.entry:GetTall() - serverName:GetTall() - 20 )
-		settings:SetPos( eChat.frame:GetWide() - settings:GetWide(), 0 )
 	end
 	eChat.chatLog.PerformLayout = function( self )
 		self:SetFontInternal("eChat_18")
 		self:SetFGColor( color_white )
 	end
 	eChat.oldPaint2 = eChat.chatLog.Paint
+	
+	--[[local outlinecolour = Color( 0, 0, 0 )
+	local outlinewidth = 1
+	local steps = (outlinewidth*2) / 3
+	if ( steps < 1 )  then steps = 1 end
+	eChat.chatLog.PaintTextpart = function( self, text, font, x, y, colour )
+		surface.SetFont( font )
+		surface.SetTextColor( outlinecolour )
+		
+		for _x=-outlinewidth, outlinewidth, steps do
+			for _y=-outlinewidth, outlinewidth, steps do
+				surface.SetTextPos( x + (_x), y + (_y) )
+				surface.DrawText( text )
+			end
+		end
+		
+		surface.SetTextColor( colour )
+		surface.SetTextPos( x, y )
+		surface.DrawText( text )
+	end]]
 	
 	local text = "Say :"
 
@@ -389,12 +401,16 @@ function chat.AddText(...)
 	
 	-- Iterate through the strings and colors
 	for _, obj in pairs( {...} ) do
-		if type(obj) == "table" then
+		if IsColor(obj) then
 			eChat.chatLog:InsertColorChange( obj.r, obj.g, obj.b, obj.a )
 			table.insert( msg, Color(obj.r, obj.g, obj.b, obj.a) )
 		elseif type(obj) == "string"  then
-			eChat.chatLog:AppendText( obj )
+			eChat.chatLog:AppendText( language.GetPhrase( obj ) )
 			table.insert( msg, obj )
+		elseif type(obj) == "table"  then
+			if obj[1] == "image" then
+        eChat.chatLog:AppendImage({mat = Material(obj[2].img), w = obj[2].w, h = obj[2].h})
+      end
 		elseif obj:IsPlayer() then
 			local ply = obj
 			
@@ -402,6 +418,13 @@ function chat.AddText(...)
 				eChat.chatLog:InsertColorChange( 130, 130, 130, 255 )
 				eChat.chatLog:AppendText( "["..os.date("%X").."] ")
 			end
+						
+			eChat.chatLog:AppendFunc(function(h)
+				local panel = vgui.Create( "AvatarImage" )
+				panel:SetSize(h, h)
+				panel:SetPlayer( ply, 16 )
+				return {panel = panel, h = h, w = h}
+			end)
 			
 			if eChat.config.seeChatTags and ply:GetNWBool("eChat_tagEnabled", false) then
 				local col = ply:GetNWString("eChat_tagCol", "255 255 255")
@@ -420,8 +443,8 @@ function chat.AddText(...)
 	
 	eChat.chatLog:SetVisible( true )
 	eChat.lastMessage = CurTime()
-	eChat.chatLog:InsertColorChange( 255, 255, 255, 255 )
 --	oldAddText(unpack(msg))
+	eChat.chatLog:GotoTextEnd()
 end
 
 --// Write any server notifications
@@ -436,6 +459,7 @@ hook.Add( "ChatText", "echat_joinleave", function( index, name, text, type )
 		eChat.chatLog:AppendText( text.."\n" )
 		eChat.chatLog:SetVisible( true )
 		eChat.lastMessage = CurTime()
+		eChat.chatLog:GotoTextEnd()
 		return true
 	end
 end)
