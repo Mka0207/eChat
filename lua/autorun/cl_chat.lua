@@ -1,12 +1,13 @@
 ----// eChat //----
--- Author: Exho (obviously), Tomelyr, LuaTenshi
--- Version: 4/12/15
+-- Author: Exho (obviously), Tomelyr, LuaTenshi, Mka0207
+-- Version: 3/21/20
 
 if SERVER then
 	AddCSLuaFile()
 	return
 end
 
+--Clean up hooks not required for a custom chatbox.
 timer.Simple(5, function()
 	if GAMEMODE_NAME != 'terrortown' then
 		hook.Remove( 'OnPlayerChat', 'FWKZT.ChatTags.AddTag' )
@@ -23,7 +24,8 @@ eChat.config = {
 	timeStamps = true,
 	position = 1,	
 	fadeTime = 12,
-	seeChatTags = true
+	seeChatTags = true,
+	seeAvatars = true
 }
 
 surface.CreateFont( "eChat_Links", {
@@ -174,37 +176,8 @@ function eChat.buildBox()
 		self:SetFontInternal("ChatFont")
 		self:SetFGColor( color_white )
 	end
-	-- Handle any commands we get from the panel
-	--[[eChat.chatLog.ActionSignal = function( signalName, signalValue )
-		print('this ran')
-		if ( signalName == "TextClicked" ) then
-			if ( signalValue == "OpenSite" ) then
-				gui.OpenURL( eChat.chatLog.StoredText ) 
-			end
-		end
-	end]]
 	eChat.oldPaint2 = eChat.chatLog.Paint
-	
-	--[[local outlinecolour = Color( 0, 0, 0 )
-	local outlinewidth = 1
-	local steps = (outlinewidth*2) / 3
-	if ( steps < 1 )  then steps = 1 end
-	eChat.chatLog.PaintTextpart = function( self, text, font, x, y, colour )
-		surface.SetFont( font )
-		surface.SetTextColor( outlinecolour )
-		
-		for _x=-outlinewidth, outlinewidth, steps do
-			for _y=-outlinewidth, outlinewidth, steps do
-				surface.SetTextPos( x + (_x), y + (_y) )
-				surface.DrawText( text )
-			end
-		end
-		
-		surface.SetTextColor( colour )
-		surface.SetTextPos( x, y )
-		surface.DrawText( text )
-	end]]
-	
+
 	local text = "Say :"
 
 	local say = vgui.Create("DLabel", eChat.frame)
@@ -322,8 +295,11 @@ function eChat.openSettings()
 		draw.RoundedBox( 0, 0, 0, w, h, Color( 30, 30, 30, 200 ) )
 		
 		draw.RoundedBox( 0, 0, 0, w, 25, Color( 80, 80, 80, 100 ) )
-		
-		draw.RoundedBox( 0, 0, 25, w, 25, Color( 50, 50, 50, 50 ) )
+	end
+	
+	eChat.paneList = vgui.Create("DPanelList", eChat.frameS)
+	eChat.paneList:Dock(FILL)
+	eChat.paneList.Paint = function( self, w, h )
 	end
 	
 	local serverName = vgui.Create("DLabel", eChat.frameS)
@@ -332,46 +308,31 @@ function eChat.openSettings()
 	serverName:SizeToContents()
 	serverName:SetPos( 5, 4 )
 	
-	local label1 = vgui.Create("DLabel", eChat.frameS)
-	label1:SetText( "Time stamps: " )
-	label1:SetFont( "ChatFont")
-	label1:SizeToContents()
-	label1:SetPos( 10, 40 )
+	local avatar_check = vgui.Create("DCheckBoxLabel", eChat.frameS)
+	avatar_check:SetText("Avatars")
+	avatar_check:SetValue(eChat.config.seeAvatars)
+	avatar_check:SizeToContents()
+	eChat.paneList:AddItem(avatar_check)
 	
-	local checkbox1 = vgui.Create("DCheckBox", eChat.frameS ) 
-	checkbox1:SetPos(label1:GetWide() + 15, 42)
-	checkbox1:SetValue( eChat.config.timeStamps )
+	local tags_check = vgui.Create("DCheckBoxLabel", eChat.frameS)
+	tags_check:SetText("Tags")
+	tags_check:SetValue(eChat.config.seeChatTags)
+	tags_check:SizeToContents()
+	eChat.paneList:AddItem(tags_check)
 	
-	local label2 = vgui.Create("DLabel", eChat.frameS)
-	label2:SetText( "Fade time: " )
-	label2:SetFont( "ChatFont")
-	label2:SizeToContents()
-	label2:SetPos( 10, 70 )
+	local stamps_check = vgui.Create("DCheckBoxLabel", eChat.frameS)
+	stamps_check:SetText("Time stamps")
+	stamps_check:SetValue(eChat.config.timeStamps)
+	stamps_check:SizeToContents()
+	eChat.paneList:AddItem(stamps_check)
 	
-	local textEntry = vgui.Create("DTextEntry", eChat.frameS) 
-	textEntry:SetSize( 50, 20 )
-	textEntry:SetPos( label2:GetWide() + 15, 70 )
-	textEntry:SetText( eChat.config.fadeTime ) 
-	textEntry:SetTextColor( color_white )
-	textEntry:SetFont("ChatFont")
-	textEntry:SetDrawBorder( false )
-	textEntry:SetDrawBackground( false )
-	textEntry:SetCursorColor( color_white )
-	textEntry:SetHighlightColor( Color(52, 152, 219) )
-	textEntry.Paint = function( self, w, h )
-		draw.RoundedBox( 0, 0, 0, w, h, Color( 30, 30, 30, 100 ) )
-		derma.SkinHook( "Paint", "TextEntry", self, w, h )
-	end
-	
-	--[[local label3 = vgui.Create("DLabel", eChat.frameS)
-	label3:SetText( "Use chat tags: " )
-	label3:SetFont( "ChatFont")
-	label3:SizeToContents()
-	label3:SetPos( 10, 100 )
-	
-	local checkbox3 = vgui.Create("DCheckBox", eChat.frameS ) 
-	checkbox3:SetPos(label3:GetWide() + 15, 102)
-	checkbox3:SetValue( eChat.config.seeChatTags )]]
+	local time_slider = vgui.Create("DNumSlider", eChat.frameS)
+	time_slider:SetDecimals(0)
+	time_slider:SetMinMax(1, 30)
+	time_slider:SetValue(eChat.config.fadeTime)
+	time_slider:SetText("Fade Time")
+	time_slider:SizeToContents()
+	eChat.paneList:AddItem(time_slider)
 	
 	local save = vgui.Create("DButton", eChat.frameS)
 	save:SetText("Save")
@@ -389,8 +350,10 @@ function eChat.openSettings()
 	save.DoClick = function( self )
 		eChat.frameS:Close()
 		
-		eChat.config.timeStamps = checkbox1:GetChecked() 
-		eChat.config.fadeTime = tonumber(textEntry:GetText()) or eChat.config.fadeTime
+		eChat.config.timeStamps = stamps_check:GetChecked()
+		eChat.config.seeAvatars = avatar_check:GetChecked()
+		eChat.config.seeChatTags = tags_check:GetChecked()
+		eChat.config.fadeTime = tonumber(time_slider:GetValue()) or eChat.config.fadeTime
 	end
 end
 
@@ -443,14 +406,15 @@ function chat.AddText(...)
 				eChat.chatLog:AppendText( "["..time_txt.." "..os.date("%p").."] ")
 			end
 			
-			local spacing = 5
-			eChat.chatLog:AppendFunc(function(h)
-				local panel = vgui.Create( "AvatarImage" )
-				panel:SetSize(h, h-1)
-				panel:SetPlayer( ply, 16 )
-				return {panel = panel, h = h, w = h+spacing}
-			end)
-		
+			if eChat.config.seeAvatars then
+				eChat.chatLog:AppendFunc(function(h)
+					local panel = vgui.Create( "AvatarImage" )
+					panel:SetSize(h, h-1)
+					panel:SetPlayer( ply, 16 )
+					return {panel = panel, h = h, w = h+5}
+				end)
+			end
+			
 			if eChat.config.seeChatTags and ply:HasChatTag() then
 				local col = ply:GetChatTagColor()
 				local tbl = col:ToTable()
