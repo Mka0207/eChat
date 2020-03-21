@@ -7,8 +7,17 @@ if SERVER then
 	return
 end
 
+net.Receive( "NetWork_StoreText", function( len, pl )
+	--print( "Message from server received. Its length is " .. len .. "." )
+	net.ReadEntity().StoredText = net.ReadString()
+end )
+
+local function BetterScreenScale()
+	return math.max(ScrH() / 1080, 0.851) * 1.0
+end
+
 --Clean up hooks not required for a custom chatbox.
-timer.Simple(5, function()
+timer.Simple(0.1, function()
 	if GAMEMODE_NAME != 'terrortown' then
 		hook.Remove( 'OnPlayerChat', 'FWKZT.ChatTags.AddTag' )
 	else
@@ -21,12 +30,21 @@ eChat = {}
 include( 'autorun/sh_chat.lua' )
 
 eChat.config = {
-	timeStamps = true,
-	position = 1,	
+	timeStamps = false,
+	position = 1,
 	fadeTime = 12,
 	seeChatTags = true,
 	seeAvatars = true
 }
+
+surface.CreateFont( "eChatFont", {
+	font = "Verdana",
+	size = 16,
+	weight = 500,
+	underline = false,
+	antialias = false,
+	shadow = false
+} )
 
 surface.CreateFont( "eChat_Links", {
 	font = "Verdana",
@@ -80,15 +98,15 @@ function eChat.buildBox()
 	
 	local serverName = vgui.Create("DLabel", eChat.frame)
 	serverName:SetText( GetHostName() )
-	serverName:SetFont( "ChatFont")
+	serverName:SetFont( "eChatFont")
 	serverName:SizeToContents()
 	serverName:SetPos( 5, 4 )
 	
 	local settings = vgui.Create("DButton", eChat.frame)
 	settings:SetText("Settings")
-	settings:SetFont( "ChatFont")
+	settings:SetFont( "eChatFont")
 	settings:SetTextColor( Color( 230, 230, 230, 150 ) )
-	settings:SetSize( 70, 25 )
+	settings:SetSize( 70*BetterScreenScale(), 25 )
 	settings:SetPos( eChat.frame:GetWide() - settings:GetWide(), 0 )
 	settings.Paint = function( self, w, h )
 		draw.RoundedBox( 0, 0, 0, w, h, Color( 50, 50, 50, 200 ) )
@@ -100,7 +118,7 @@ function eChat.buildBox()
 	eChat.entry = vgui.Create("DTextEntry", eChat.frame) 
 	eChat.entry:SetSize( eChat.frame:GetWide() - 50, 20 )
 	eChat.entry:SetTextColor( color_white )
-	eChat.entry:SetFont("ChatFont")
+	eChat.entry:SetFont("eChatFont")
 	eChat.entry:SetDrawBorder( false )
 	eChat.entry:SetDrawBackground( false )
 	eChat.entry:SetCursorColor( color_white )
@@ -148,8 +166,6 @@ function eChat.buildBox()
 				else
 					LocalPlayer():ConCommand("say \"" .. self:GetText() .. "\"")
 				end
-				--store this for emoji use.
-				eChat.chatLog.StoredText = self:GetText()
 			end
 
 			eChat.TypeSelector = 1
@@ -182,14 +198,14 @@ function eChat.buildBox()
 
 	local say = vgui.Create("DLabel", eChat.frame)
 	say:SetText("")
-	surface.SetFont( "ChatFont")
+	surface.SetFont( "eChatFont")
 	local w, h = surface.GetTextSize( text )
 	say:SetSize( w + 5, 20 )
 	say:SetPos( 5, eChat.frame:GetTall() - eChat.entry:GetTall() - 5 )
 	
 	say.Paint = function( self, w, h )
 		--draw.RoundedBox( 0, 0, 0, w, h, Color( 30, 30, 30, 100 ) )
-		draw.DrawText( text, "ChatFont", 2, 1, color_white )
+		draw.DrawText( text, "eChatFont", 2, 1, color_white )
 	end
 
 	say.Think = function( self )
@@ -304,7 +320,7 @@ function eChat.openSettings()
 	
 	local serverName = vgui.Create("DLabel", eChat.frameS)
 	serverName:SetText( "Settings" )
-	serverName:SetFont( "ChatFont")
+	serverName:SetFont( "eChatFont")
 	serverName:SizeToContents()
 	serverName:SetPos( 5, 4 )
 	
@@ -336,7 +352,7 @@ function eChat.openSettings()
 	
 	local save = vgui.Create("DButton", eChat.frameS)
 	save:SetText("Save")
-	save:SetFont( "ChatFont")
+	save:SetFont( "eChatFont")
 	save:SetTextColor( Color( 230, 230, 230, 150 ) )
 	save:SetSize( 70, 25 )
 	save:SetPos( eChat.frameS:GetWide()/2 - save:GetWide()/2, eChat.frameS:GetTall() - save:GetTall() - 10)
@@ -382,8 +398,8 @@ function chat.AddText(...)
 	if not eChat.chatLog then
 		eChat.buildBox()
 	end
-	
-	local msg = {}
+
+	local lastply = nil
 	
 	-- Iterate through the strings and colors
 	for _, obj in pairs( {...} ) do
@@ -398,6 +414,19 @@ function chat.AddText(...)
 		elseif obj:IsPlayer() then
 			local ply = obj
 			
+			--[[if ply:IsDonator() then
+				eChat.chatLog:AppendImage( {mat = Material( "icon16/heart.png" ), w = 18*BetterScreenScale(), h = 18*BetterScreenScale()})
+			end
+			if ply:IsGoldPassHolder() then
+				eChat.chatLog:AppendImage( {mat = Material( "fwkzt/hud_icons/hexagon_gold_v2" ), w = 18*BetterScreenScale(), h = 18*BetterScreenScale()})
+			end
+			if ply:IsSilverPassHolder() then
+				eChat.chatLog:AppendImage( {mat = Material( "fwkzt/hud_icons/hexagon_silver_v2" ), w = 18*BetterScreenScale(), h = 18*BetterScreenScale()})
+			end
+			if ply:IsBronzePassHolder() then
+				eChat.chatLog:AppendImage( {mat = Material( "fwkzt/hud_icons/hexagon_bronze_v2" ), w = 18*BetterScreenScale(), h = 18*BetterScreenScale()})
+			end]]
+			
 			--TODO: Add option for selecting 24hr or 12hr time formats.
 			if eChat.config.timeStamps then
 				local d = os.date("*t")
@@ -408,10 +437,11 @@ function chat.AddText(...)
 			
 			if eChat.config.seeAvatars then
 				eChat.chatLog:AppendFunc(function(h)
-					local panel = vgui.Create( "AvatarImage" )
-					panel:SetSize(h, h-1)
-					panel:SetPlayer( ply, 16 )
-					return {panel = panel, h = h, w = h+5}
+					local panel = vgui.Create( "AvatarImage", eChat.chatLog )
+					panel:SetSize(18*BetterScreenScale(), 16*BetterScreenScale())
+					panel:Center()
+					panel:SetPlayer( ply, 32 )
+					return {panel = panel, h = 20*BetterScreenScale(), w = 21*BetterScreenScale()}
 				end)
 			end
 			
@@ -425,25 +455,29 @@ function chat.AddText(...)
 			local col = GAMEMODE:GetTeamColor( obj )
 			eChat.chatLog:InsertColorChange( col.r, col.g, col.b, 255 )
 			eChat.chatLog:AppendText( obj:Nick() )
+			
+			lastply = obj
 		end
 	end
 	
-	if eChat.chatLog.StoredText ~= nil then
+	if lastply.StoredText ~= nil then
 		--Check and add emojis
 		--TODO: Setup support for appending html panels
 		for wrds, img in pairs( eChat.Emojis ) do
-			local e_st, e_en = string.find( eChat.chatLog.StoredText, wrds )
-			if e_st then
-				eChat.chatLog:AppendImage( {mat = Material(img), w = 16, h = 16})
+			str = lastply.StoredText
+			for s in string.gmatch(str, "[^%s,]+") do
+				if s:match( wrds ) then
+					eChat.chatLog:AppendImage( {mat = Material(img), w = 16*BetterScreenScale(), h = 16*BetterScreenScale()})
+				end
 			end
 		end
 		--Only fwkzt clickable links.
-		local http_start, http_end = string.find( eChat.chatLog.StoredText, "https://fwkzt.com" )
+		local http_start, http_end = string.find( lastply.StoredText, "https://fwkzt.com" )
 		if http_start then
 			eChat.chatLog:AppendFunc(function(h)
 				local panel = vgui.Create( "DLabel" )
 				panel:SetFont( "eChat_Links" )
-				local url = string.sub( eChat.chatLog.StoredText, http_start )
+				local url = string.sub( lastply.StoredText, http_start )
 				panel:SetText( url )
 				panel:SetTextColor( Color( 66, 221, 245 ) )
 				panel:SizeToContents()
@@ -459,11 +493,12 @@ function chat.AddText(...)
 		--[[eChat.chatLog:AppendFunc(function(h)
 			local panel = vgui.Create( "DHTML" )
 			panel:SetSize( 16, h )
-			panel:OpenURL("http://www.famfamfam.com/lab/icons/silk/icons/add.png")
+			panel:OpenURL("https://cdn.discordapp.com/attachments/256233839658139648/690832036235051028/halo-icon2.png")
 	
 			return {panel = panel, h = h, w = h}
 		end)]]
 	end
+	lastply.StoredText = nil
 	
 	eChat.chatLog:AppendText("\n")
 	
@@ -480,6 +515,8 @@ hook.Add( "ChatText", "echat_joinleave", function( index, name, text, type )
 	end
 	
 	if type != "chat" then
+		if ( type == "joinleave" ) then return true end
+		
 		eChat.chatLog:InsertColorChange( 0, 128, 255, 255 )
 		eChat.chatLog:AppendText( text.."\n" )
 		eChat.chatLog:SetVisible( true )
