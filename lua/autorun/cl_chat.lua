@@ -9,8 +9,10 @@ end
 
 eChat = {}
 
+include( 'autorun/sh_chat.lua' )
+
 eChat.config = {
-	timeStamps = false,
+	timeStamps = true,
 	position = 1,	
 	fadeTime = 12,
 }
@@ -30,15 +32,10 @@ surface.CreateFont( "eChat_16", {
 	antialias = true,
 } )
 
---// Prevents errors if the script runs too early, which it will
-if not GAMEMODE then
-	hook.Remove("Initialize", "echat_init")
-	hook.Add("Initialize", "echat_init", function()
-		include("autorun/cl_chat.lua")
-		eChat.buildBox()
-	end)
-	return
-end
+hook.Remove("InitPostEntity", "echat_init")
+hook.Add("InitPostEntity", "echat_init", function()
+	eChat.buildBox()
+end)
 
 --// Builds the chatbox but doesn't display it
 function eChat.buildBox()
@@ -122,7 +119,8 @@ function eChat.buildBox()
 		elseif code == KEY_ENTER then
 			-- Replicate the client pressing enter
 			
-			if string.Trim( self:GetText() ) != "" then
+			local txt = string.Trim( self:GetText() )
+			if txt != "" then
 				if eChat.ChatType == types[2] then
 					LocalPlayer():ConCommand("say_team \"" .. (self:GetText() or "") .. "\"")
 				elseif eChat.ChatType == types[3] then
@@ -130,6 +128,8 @@ function eChat.buildBox()
 				else
 					LocalPlayer():ConCommand("say \"" .. self:GetText() .. "\"")
 				end
+				--store this for emoji use.
+				eChat.chatLog.StoredText = self:GetText()
 			end
 
 			eChat.TypeSelector = 1
@@ -153,7 +153,7 @@ function eChat.buildBox()
 		end
 	end
 	eChat.chatLog.PerformLayout = function( self )
-		self:SetFontInternal("eChat_18")
+		self:SetFontInternal("ChatFont")
 		self:SetFGColor( color_white )
 	end
 	eChat.oldPaint2 = eChat.chatLog.Paint
@@ -403,14 +403,12 @@ function chat.AddText(...)
 	for _, obj in pairs( {...} ) do
 		if IsColor(obj) then
 			eChat.chatLog:InsertColorChange( obj.r, obj.g, obj.b, obj.a )
-			table.insert( msg, Color(obj.r, obj.g, obj.b, obj.a) )
 		elseif type(obj) == "string"  then
 			eChat.chatLog:AppendText( language.GetPhrase( obj ) )
-			table.insert( msg, obj )
 		elseif type(obj) == "table"  then
 			if obj[1] == "image" then
-        eChat.chatLog:AppendImage({mat = Material(obj[2].img), w = obj[2].w, h = obj[2].h})
-      end
+				eChat.chatLog:AppendImage({mat = Material(obj[2].img), w = obj[2].w, h = obj[2].h})
+			end
 		elseif obj:IsPlayer() then
 			local ply = obj
 			
@@ -418,14 +416,15 @@ function chat.AddText(...)
 				eChat.chatLog:InsertColorChange( 130, 130, 130, 255 )
 				eChat.chatLog:AppendText( "["..os.date("%X").."] ")
 			end
-						
+			
+			local spacing = 5
 			eChat.chatLog:AppendFunc(function(h)
 				local panel = vgui.Create( "AvatarImage" )
 				panel:SetSize(h, h)
 				panel:SetPlayer( ply, 16 )
-				return {panel = panel, h = h, w = h}
+				return {panel = panel, h = h, w = h+spacing}
 			end)
-			
+		
 			if eChat.config.seeChatTags and ply:GetNWBool("eChat_tagEnabled", false) then
 				local col = ply:GetNWString("eChat_tagCol", "255 255 255")
 				local tbl = string.Explode(" ", col )
@@ -436,14 +435,19 @@ function chat.AddText(...)
 			local col = GAMEMODE:GetTeamColor( obj )
 			eChat.chatLog:InsertColorChange( col.r, col.g, col.b, 255 )
 			eChat.chatLog:AppendText( obj:Nick() )
-			table.insert( msg, obj:Nick() )
+		end
+	end
+	
+	for wrds, img in pairs( eChat.Emojis ) do
+		local e_st, e_en = string.find( eChat.chatLog.StoredText, wrds )
+		if e_st then
+			eChat.chatLog:AppendImage( {mat = Material(img), w = 16, h = 16})
 		end
 	end
 	eChat.chatLog:AppendText("\n")
 	
 	eChat.chatLog:SetVisible( true )
 	eChat.lastMessage = CurTime()
---	oldAddText(unpack(msg))
 	eChat.chatLog:GotoTextEnd()
 end
 
