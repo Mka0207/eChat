@@ -97,7 +97,7 @@ function eChat.buildBox()
 	end
 	
 	local serverName = vgui.Create("DLabel", eChat.frame)
-	serverName:SetText( GetHostName() )
+	serverName:SetText( "FWKZT.com" )
 	serverName:SetFont( "eChatFont")
 	serverName:SizeToContents()
 	serverName:SetPos( 5, 4 )
@@ -469,7 +469,14 @@ function chat.AddText(...)
 			str = lastply.StoredText
 			for s in string.gmatch(str, "[^%s,]+") do
 				if s:match( wrds ) then
-					eChat.chatLog:AppendImage( {mat = Material(img), w = 16*BetterScreenScale(), h = 16*BetterScreenScale()})
+					--eChat.chatLog:AppendImage( {mat = Material(img), w = 22*BetterScreenScale(), h = 22*BetterScreenScale()})
+					eChat.chatLog:AppendFunc(function(h)
+						local panel = vgui.Create( "DImage", eChat.chatLog )
+						panel:SetSize( 18*BetterScreenScale(), 16*BetterScreenScale() )
+						panel:SetImage(img)
+				
+						return {panel = panel, h = 20*BetterScreenScale(), w = 21*BetterScreenScale()}
+					end)
 				end
 			end
 		end
@@ -477,7 +484,7 @@ function chat.AddText(...)
 		local http_start, http_end = string.find( lastply.StoredText, "https://fwkzt.com" )
 		if http_start then
 			eChat.chatLog:AppendFunc(function(h)
-				local panel = vgui.Create( "DLabel" )
+				local panel = vgui.Create( "DLabel", eChat.chatLog )
 				panel:SetFont( "eChat_Links" )
 				local url = string.sub( lastply.StoredText, http_start )
 				panel:SetText( url )

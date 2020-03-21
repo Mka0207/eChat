@@ -1,9 +1,16 @@
+resource.AddFile( "materials/fwkzt/emojis/blue_shift.png" )
+resource.AddFile( "materials/fwkzt/emojis/rofl_stare.png" )
+
 util.AddNetworkString( "NetWork_StoreText" )
+
+--TODO: loop through emojis folder and resource add all jpeg/pngs.
 
 hook.Add( "PlayerSay", "FilterEmonjis", function( ply, text )
 
-	PrintMessage(HUD_PRINTCONSOLE, "["..ply:GetChatTag().."] "..ply:Nick().. ": "..text)
-
+	if ply:IsAdmin() then
+		PrintMessage(HUD_PRINTCONSOLE, "["..ply:GetChatTag().."] "..ply:Nick().. ": "..text)
+	end
+	
 	net.Start("NetWork_StoreText")
 		net.WriteEntity( ply )
 		net.WriteString( text )
