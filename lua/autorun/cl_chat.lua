@@ -430,6 +430,7 @@ function chat.AddText(...)
 	
 	if eChat.chatLog.StoredText ~= nil then
 		--Check and add emojis
+		--TODO: Setup support for appending html panels
 		for wrds, img in pairs( eChat.Emojis ) do
 			local e_st, e_en = string.find( eChat.chatLog.StoredText, wrds )
 			if e_st then
@@ -454,6 +455,14 @@ function chat.AddText(...)
 				return {panel = panel, h = h, w = h}
 			end)
 		end
+		--HTML Emojis
+		--[[eChat.chatLog:AppendFunc(function(h)
+			local panel = vgui.Create( "DHTML" )
+			panel:SetSize( 16, h )
+			panel:OpenURL("http://www.famfamfam.com/lab/icons/silk/icons/add.png")
+	
+			return {panel = panel, h = h, w = h}
+		end)]]
 	end
 	
 	eChat.chatLog:AppendText("\n")
