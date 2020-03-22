@@ -502,6 +502,7 @@ function chat.AddText(...)
 						local panel = vgui.Create( "DImage", eChat.chatLog )
 						panel:SetSize( 18*BetterScreenScale(), 16*BetterScreenScale() )
 						panel:SetImage(img)
+						panel:SetTooltip(wrds)
 				
 						return {panel = panel, h = 20*BetterScreenScale(), w = 21*BetterScreenScale()}
 					end)
