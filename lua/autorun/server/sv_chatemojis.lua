@@ -24,7 +24,11 @@ util.AddNetworkString( "NetWork_StoreText" )
 hook.Add( "PlayerSay", "FilterEmonjis", function( ply, text )
 
 	if ply:IsAdmin() then
-		PrintMessage(HUD_PRINTCONSOLE, "["..ply:GetChatTag().."] "..ply:Nick().. ": "..text)
+		if ply:HasChatTag() then
+			PrintMessage(HUD_PRINTCONSOLE, "["..ply:GetChatTag().."] "..ply:Nick().. ": "..text)
+		else
+			PrintMessage(HUD_PRINTCONSOLE, ply:Nick().. ": "..text)
+		end
 	end
 	
 	net.Start("NetWork_StoreText")
