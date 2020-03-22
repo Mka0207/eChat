@@ -176,18 +176,44 @@ function eChat.buildBox()
 	end
 
 	eChat.chatLog = vgui.Create("DFancyText", eChat.frame) 
+	local scrollbar = eChat.chatLog:GetChildren()[2]
+	scrollbar.Paint = function(self,w,h)
+	end
+	local topbutton, bottom, grip = scrollbar:GetChildren()[1], scrollbar:GetChildren()[2], scrollbar:GetChildren()[3]
+	topbutton.Paint = function(self,w,h)
+		draw.RoundedBox( 0, 0, 0, w, h, Color( 245, 66, 66, 100 ) )
+		surface.SetFont( "ChatFont" )
+		surface.SetTextColor( 255, 255, 255 )
+		surface.SetTextPos( 0.5, -2 ) 
+		surface.DrawText( "▲" )
+	end
+	bottom.Paint = function(self,w,h)
+		draw.RoundedBox( 0, 0, 0, w, h, Color( 245, 66, 66, 100 ) )
+		surface.SetFont( "ChatFont" )
+		surface.SetTextColor( 255, 255, 255 )
+		surface.SetTextPos( 0.5, -1.5 ) 
+		surface.DrawText( "▼" )
+	end
+	grip.Paint = function(self,w,h)
+		draw.RoundedBox( 0, 0, 0, w, h, Color( 138, 138, 138, 100 ) )
+	end
+	
 	eChat.chatLog:SetSize( eChat.frame:GetWide() - 10, eChat.frame:GetTall() - 60 )
 	eChat.chatLog:SetPos( 5, 30 )
 	eChat.chatLog.Paint = function( self, w, h )
 		draw.RoundedBox( 0, 0, 0, w, h, Color( 30, 30, 30, 100 ) )
 	end
 	eChat.chatLog.Think = function( self )
-		if eChat.lastMessage then
-			if CurTime() - eChat.lastMessage > eChat.config.fadeTime then
-				self:SetVisible( false )
-			else
-				self:SetVisible( true )
+		if not gui.IsGameUIVisible() then
+			if eChat.lastMessage then
+				if CurTime() - eChat.lastMessage > eChat.config.fadeTime then
+					self:SetVisible( false )
+				else
+					self:SetVisible( true )
+				end
 			end
+		else
+			self:SetVisible( false )
 		end
 	end
 	eChat.chatLog.PerformLayout = function( self )
