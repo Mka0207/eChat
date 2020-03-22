@@ -29,6 +29,8 @@ eChat = {}
 
 include( 'autorun/sh_chat.lua' )
 
+--TODO: Setup client convars that persist so settings are saved.
+
 eChat.config = {
 	timeStamps = false,
 	position = 1,
