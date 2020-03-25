@@ -98,7 +98,7 @@ end
 
 PANEL = {}
 function PANEL:Init()
-
+	self.RowSpacing = 0
 	self.sepwide = 18	-- We cant run surface.GetTextSize if the panel is made too early
 	self.chartall = 18
 	timer.Simple(0.5, function()	
@@ -169,7 +169,7 @@ function PANEL:Init()
 					elseif i_v[1] == "font" then
 						spacer, ctall = surface.GetTextSize( " " )
 						me.sepwide = spacer
-						me.chartall = ctall
+						me.chartall = ctall + me.RowSpacing
 						font = i_v[2]
 						w = 0
 						h = 0
@@ -193,7 +193,7 @@ function PANEL:Init()
 					elseif i_v[1] == "font" then
 						spacer, ctall = surface.GetTextSize( " " )
 						me.sepwide = spacer
-						me.chartall = ctall
+						me.chartall = ctall + me.RowSpacing
 						font = i_v[2]
 					elseif i_v[1] == "textcolor" then
 						color = i_v[2]
