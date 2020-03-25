@@ -3,6 +3,7 @@ eChat.Emojis = {
 	['.user.'] = "icon16/user.png",
 	['.heart.'] = "icon16/heart.png",
 	['.hl2.'] = "fwkzt/emojis/hl2.png",
+	['.blue_shift.'] = "fwkzt/emojis/blue_shift.png",
 	['.isaac.'] = "fwkzt/emojis/isaac.png",
 	['.jim_smile.'] = "fwkzt/emojis/jim_smile.png",
 	['.lenny.'] = "fwkzt/emojis/lenny.png",
