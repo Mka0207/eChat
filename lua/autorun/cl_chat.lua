@@ -1,17 +1,20 @@
-----// eChat //----
--- Author: Exho (obviously), Tomelyr, LuaTenshi, Mka0207
--- Version: 3/21/20
+----// eChat "FWKZT" edition //----
+-- Author: Exho (obviously), Tomelyr, LuaTenshi
+-- Contributor: Mka0207
+-- Version: 3/25/20
+-- Features: Emojis, Hyperlinks, Improved UI and more!
 
 if SERVER then
 	AddCSLuaFile()
 	return
 end
 
-net.Receive( "NetWork_StoreText", function( len, pl )
+net.Receive( "echat_synctext", function( len, pl )
 	--print( "Message from server received. Its length is " .. len .. "." )
 	net.ReadEntity().StoredText = net.ReadString()
 end )
 
+-- Thanks jetboom
 local function BetterScreenScale()
 	return math.max(ScrH() / 1080, 0.851) * 1.0
 end
@@ -55,21 +58,6 @@ surface.CreateFont( "eChat_Links", {
 	underline = false,
 	antialias = false,
 	shadow = true
-} )
-
-surface.CreateFont( "eChat_18", {
-	font = "Roboto Lt",
-	size = 18,
-	weight = 500,
-	antialias = true,
-	shadow = true
-} )
-
-surface.CreateFont( "eChat_16", {
-	font = "Roboto Lt",
-	size = 16,
-	weight = 500,
-	antialias = true,
 } )
 
 hook.Remove("InitPostEntity", "echat_init")
