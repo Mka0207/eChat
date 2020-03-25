@@ -42,6 +42,15 @@ eChat.config = {
 	seeAvatars = true
 }
 
+surface.CreateFont( "eChatText", {
+	font = "Verdana",
+	size = 32,
+	weight = 500,
+	underline = false,
+	antialias = false,
+	shadow = true
+} )
+
 surface.CreateFont( "eChatFont", {
 	font = "Verdana",
 	size = 16,
@@ -205,7 +214,7 @@ function eChat.buildBox()
 		end
 	end
 	eChat.chatLog.PerformLayout = function( self )
-		self:SetFontInternal("ChatFont")
+		self:SetFontInternal("eChatText")
 		self:SetFGColor( color_white )
 	end
 	eChat.oldPaint2 = eChat.chatLog.Paint
@@ -424,7 +433,69 @@ function chat.AddText(...)
 		if IsColor(obj) then
 			eChat.chatLog:InsertColorChange( obj.r, obj.g, obj.b, obj.a )
 		elseif type(obj) == "string"  then
-			eChat.chatLog:AppendText( language.GetPhrase( obj ) )
+			--eChat.chatLog:AppendText( language.GetPhrase( obj ) )
+			
+			eChat.chatLog:AppendFunc(function(h)
+				local panel = vgui.Create( "DLabel" )
+				panel:SetSize(eChat.chatLog:GetWide(), 28*BetterScreenScale())
+				panel:SetFont("ChatFont")
+				panel:Center()
+			
+				panel:SetColor( color_white )
+				panel:SetText( language.GetPhrase( obj ) )
+	
+				local w2, h2 = panel:GetTextSize()
+				return {panel = panel, h = h, w = w2}
+			end)
+			
+			if ( lastply and lastply:IsValid() ) and lastply.StoredText ~= nil then
+			
+				--TODO: Setup support for appending html panels
+				for wrds, img in pairs( eChat.Emojis ) do
+					local str = lastply.StoredText
+					for s in string.gmatch(str, "[^%s,]+") do
+						if s:match( wrds ) then
+							print(s)
+							eChat.chatLog:AppendFunc(function(h)
+								local panel = vgui.Create( "DImage", eChat.chatLog )
+								panel:SetSize( 40*BetterScreenScale(), 32*BetterScreenScale() )
+								panel:SetImage(img)
+								panel:SetTooltip(wrds)
+						
+								return {panel = panel, h = h, w = 40*BetterScreenScale()}
+							end)
+						end
+					end
+				end
+			
+				--Only fwkzt clickable links.
+				local http_start, http_end = string.find( lastply.StoredText, "https://fwkzt.com" )
+				if http_start then
+					eChat.chatLog:AppendFunc(function(h)
+						local panel = vgui.Create( "DLabel", eChat.chatLog )
+						panel:SetFont( "eChat_Links" )
+						local url = string.sub( lastply.StoredText, http_start )
+						panel:SetText( url )
+						panel:SetTextColor( Color( 66, 221, 245 ) )
+						panel:SizeToContents()
+						panel:Center()
+						panel:SetMouseInputEnabled( true )
+						function panel:DoClick()
+							gui.OpenURL( url )
+						end
+						return {panel = panel, h = h, w = h}
+					end)
+				end
+				--HTML Emojis
+				--[[eChat.chatLog:AppendFunc(function(h)
+					local panel = vgui.Create( "DHTML" )
+					panel:SetSize( 16, h )
+					panel:OpenURL("https://cdn.discordapp.com/attachments/256233839658139648/690832036235051028/halo-icon2.png")
+			
+					return {panel = panel, h = h, w = h}
+				end)]]
+				lastply.StoredText = nil
+			end
 		elseif type(obj) == "table"  then
 			if obj[1] == "image" then
 				eChat.chatLog:AppendImage({mat = Material(obj[2].img), w = obj[2].w, h = obj[2].h})
@@ -449,81 +520,58 @@ function chat.AddText(...)
 			if eChat.config.timeStamps then
 				local d = os.date("*t")
 				local time_txt = ("%02d:%02d"):format(((d.hour % 24) - 1) % 12 + 1, d.min)
-				eChat.chatLog:InsertColorChange( 77,255,0, 255 )
-				eChat.chatLog:AppendText( "["..time_txt.." "..os.date("%p").."] ")
+				eChat.chatLog:AppendFunc(function(h)
+					local panel = vgui.Create( "DLabel", eChat.chatLog )
+					panel:SetSize(eChat.chatLog:GetWide(), 28*BetterScreenScale())
+					panel:SetFont("ChatFont")
+					panel:SetColor( Color( 77, 255, 0, 255 ) )
+					panel:Center()
+					panel:SetText( "["..time_txt.." "..os.date("%p").."]" )
+					local w2, h2 = panel:GetTextSize()
+					return {panel = panel, h = h, w = w2}
+				end)
 			end
 			
 			if eChat.config.seeAvatars then
 				eChat.chatLog:AppendFunc(function(h)
 					local panel = vgui.Create( "AvatarImage", eChat.chatLog )
-					panel:SetSize(18*BetterScreenScale(), 16*BetterScreenScale())
+					panel:SetSize(32*BetterScreenScale(), 32*BetterScreenScale())
 					panel:Center()
 					panel:SetPlayer( ply, 32 )
-					return {panel = panel, h = 20*BetterScreenScale(), w = 21*BetterScreenScale()}
+					return {panel = panel, h = h, w = 34*BetterScreenScale()}
 				end)
 			end
+			
+			local col = GAMEMODE:GetTeamColor( obj )
+			eChat.chatLog:AppendFunc(function(h)
+				local panel = vgui.Create( "DLabel", eChat.chatLog )
+				panel:SetSize(eChat.chatLog:GetWide(), 28*BetterScreenScale())
+				panel:SetFont("ChatFont")
+				panel:SetColor( Color( col.r, col.g, col.b, 255 ) )
+				panel:Center()
+				panel:SetText( obj:Nick() )
+				local w2, h2 = panel:GetTextSize()
+				return {panel = panel, h = h, w = w2}
+			end)
 			
 			if eChat.config.seeChatTags and ply:HasChatTag() then
 				local col = ply:GetChatTagColor()
 				local tbl = col:ToTable()
-				eChat.chatLog:InsertColorChange( tbl[1], tbl[2], tbl[3], tbl[4] )
-				eChat.chatLog:AppendText( "["..ply:GetChatTag().."] ")
+
+				eChat.chatLog:AppendFunc(function(h)
+					local panel = vgui.Create( "DLabel", eChat.chatLog )
+					panel:SetSize(eChat.chatLog:GetWide(), 28*BetterScreenScale())
+					panel:SetFont("ChatFont")
+					panel:SetColor( Color( tbl[1], tbl[2], tbl[3], tbl[4] ) )
+					panel:Center()
+					panel:SetText( "["..ply:GetChatTag().."]" )
+					local w2, h2 = panel:GetTextSize()
+					return {panel = panel, h = h, w = w2}
+				end)
 			end
-			
-			local col = GAMEMODE:GetTeamColor( obj )
-			eChat.chatLog:InsertColorChange( col.r, col.g, col.b, 255 )
-			eChat.chatLog:AppendText( obj:Nick() )
-			
+
 			lastply = obj
 		end
-	end
-	
-	if ( lastply and lastply:IsValid() ) and lastply.StoredText ~= nil then
-		--Check and add emojis
-		--TODO: Setup support for appending html panels
-		for wrds, img in pairs( eChat.Emojis ) do
-			str = lastply.StoredText
-			for s in string.gmatch(str, "[^%s,]+") do
-				if s:match( wrds ) then
-					--eChat.chatLog:AppendImage( {mat = Material(img), w = 22*BetterScreenScale(), h = 22*BetterScreenScale()})
-					eChat.chatLog:AppendFunc(function(h)
-						local panel = vgui.Create( "DImage", eChat.chatLog )
-						panel:SetSize( 18*BetterScreenScale(), 16*BetterScreenScale() )
-						panel:SetImage(img)
-						panel:SetTooltip(wrds)
-				
-						return {panel = panel, h = 20*BetterScreenScale(), w = 21*BetterScreenScale()}
-					end)
-				end
-			end
-		end
-		--Only fwkzt clickable links.
-		local http_start, http_end = string.find( lastply.StoredText, "https://fwkzt.com" )
-		if http_start then
-			eChat.chatLog:AppendFunc(function(h)
-				local panel = vgui.Create( "DLabel", eChat.chatLog )
-				panel:SetFont( "eChat_Links" )
-				local url = string.sub( lastply.StoredText, http_start )
-				panel:SetText( url )
-				panel:SetTextColor( Color( 66, 221, 245 ) )
-				panel:SizeToContents()
-				panel:Center()
-				panel:SetMouseInputEnabled( true )
-				function panel:DoClick()
-					gui.OpenURL( url )
-				end
-				return {panel = panel, h = h, w = h}
-			end)
-		end
-		--HTML Emojis
-		--[[eChat.chatLog:AppendFunc(function(h)
-			local panel = vgui.Create( "DHTML" )
-			panel:SetSize( 16, h )
-			panel:OpenURL("https://cdn.discordapp.com/attachments/256233839658139648/690832036235051028/halo-icon2.png")
-	
-			return {panel = panel, h = h, w = h}
-		end)]]
-		lastply.StoredText = nil
 	end
 	
 	eChat.chatLog:AppendText("\n")
