@@ -9,6 +9,18 @@ if SERVER then
 	return
 end
 
+local DefaultTag = {}
+DefaultTag["founder"]		= { "Founder",		Color(240,230,45) }
+DefaultTag["super_admin"]	= { "Super Admin",	Color(240,230,45) }
+DefaultTag["manager"]		= { "Manager",	Color(240,230,45) }
+DefaultTag["admin"]			= { "Admin",		Color(240,230,45) }
+DefaultTag["staff"]			= { "Staff",		Color(240,230,45) }
+DefaultTag["owners"]		= { "Owner",		Color(0,255,0) }
+DefaultTag["dedicated"]		= { "Dedicated",	Color(189, 195, 199) }
+DefaultTag["member"]		= { "Member",		Color(189, 195, 199) }
+DefaultTag["dev_team"]		= { "Dev Team",	Color(255, 0, 0) }
+DefaultTag["dev_trainee"]		= { "Developer",	Color(255, 0, 0) }
+
 net.Receive( "echat_synctext", function( len, pl )
 	--print( "Message from server received. Its length is " .. len .. "." )
 	net.ReadEntity().StoredText = net.ReadString()
@@ -392,7 +404,7 @@ function eChat.openSettings()
 		eChat.frameS:Close()
 		
 		eChat.config.timeStamps = stamps_check:GetChecked()
-		eChat.config.seeAvatars = avatar_check:GetChecked()
+		--eChat.config.seeAvatars = avatar_check:GetChecked()
 		eChat.config.seeChatTags = tags_check:GetChecked()
 		eChat.config.fadeTime = tonumber(time_slider:GetValue()) or eChat.config.fadeTime
 	end
@@ -425,21 +437,20 @@ function chat.AddText(...)
 	end
 
 	local lastply = nil
+	local lastclr = color_white
 	
 	-- Iterate through the strings and colors
 	for _, obj in pairs( {...} ) do
 		if IsColor(obj) then
-			eChat.chatLog:InsertColorChange( obj.r, obj.g, obj.b, obj.a )
+			lastclr = Color( obj.r, obj.g, obj.b, obj.a )
 		elseif type(obj) == "string"  then
-			--eChat.chatLog:AppendText( language.GetPhrase( obj ) )
-			
 			eChat.chatLog:AppendFunc(function(h)
 				local panel = vgui.Create( "DLabel" )
-				panel:SetSize(eChat.chatLog:GetWide(), 28*BetterScreenScale())
+				panel:SetSize(eChat.chatLog:GetWide(), h*BetterScreenScale())
 				panel:SetFont("ChatFont")
 				panel:Center()
 				
-				panel:SetColor( color_white )
+				panel:SetColor( lastclr )
 				panel:SetText( language.GetPhrase( obj ) )
 				
 				local w2, h2 = panel:GetTextSize()
@@ -455,7 +466,7 @@ function chat.AddText(...)
 						if s:match( wrds ) then
 							eChat.chatLog:AppendFunc(function(h)
 								local panel = vgui.Create( "DImage", eChat.chatLog )
-								panel:SetSize( 40*BetterScreenScale(), 32*BetterScreenScale() )
+								panel:SetSize( 40*BetterScreenScale(), h*BetterScreenScale() )
 								panel:SetImage(img)
 								panel:SetTooltip(wrds)
 						
@@ -519,13 +530,13 @@ function chat.AddText(...)
 				local time_txt = ("%02d:%02d"):format(((d.hour % 24) - 1) % 12 + 1, d.min)
 				eChat.chatLog:AppendFunc(function(h)
 					local panel = vgui.Create( "DLabel", eChat.chatLog )
-					panel:SetSize(eChat.chatLog:GetWide(), 28*BetterScreenScale())
+					panel:SetSize(eChat.chatLog:GetWide(), h*BetterScreenScale())
 					panel:SetFont("ChatFont")
 					panel:SetColor( Color( 77, 255, 0, 255 ) )
 					panel:Center()
-					panel:SetText( "["..time_txt.." "..os.date("%p").."]" )
+					panel:SetText( "["..time_txt.." "..os.date("%p").."] " )
 					local w2, h2 = panel:GetTextSize()
-					return {panel = panel, h = h, w = w2}
+					return {panel = panel, h = h*BetterScreenScale(), w = w2}
 				end)
 			end
 			
@@ -539,17 +550,27 @@ function chat.AddText(...)
 				end)
 			end]]
 			
-			if eChat.config.seeChatTags and ply:HasChatTag() then
+			if eChat.config.seeChatTags then
 				local col = ply:GetChatTagColor()
 				local tbl = col:ToTable()
 
 				eChat.chatLog:AppendFunc(function(h)
 					local panel = vgui.Create( "DLabel", eChat.chatLog )
-					panel:SetSize(eChat.chatLog:GetWide(), 28*BetterScreenScale())
+					panel:SetSize(eChat.chatLog:GetWide(), h)
 					panel:SetFont("ChatFont")
-					panel:SetColor( Color( tbl[1], tbl[2], tbl[3], tbl[4] ) )
-					panel:Center()
-					panel:SetText( "["..ply:GetChatTag().."] " )
+					if ply:HasChatTag() then
+						panel:SetColor( Color( tbl[1], tbl[2], tbl[3], tbl[4] ) )
+						panel:SetText( "["..ply:GetChatTag().."] " )
+					else
+						local DTag = DefaultTag[ string.lower( ply:GetUserGroup() ) ]
+						if DTag then
+							panel:SetColor( DTag[2] )
+							panel:SetText( "["..DTag[1].."] " )
+						else
+							panel:SetColor( color_white )
+							panel:SetText( "" )
+						end
+					end
 					local w2, h2 = panel:GetTextSize()
 					return {panel = panel, h = h*BetterScreenScale(), w = w2}
 				end)
@@ -557,7 +578,7 @@ function chat.AddText(...)
 			
 			eChat.chatLog:AppendFunc(function(h)
 				local panel = vgui.Create( "DLabel", eChat.chatLog )
-				panel:SetSize(eChat.chatLog:GetWide(), 28*BetterScreenScale())
+				panel:SetSize(eChat.chatLog:GetWide(), h)
 				panel:SetFont("ChatFont")
 				local col = GAMEMODE:GetTeamColor( obj )
 				panel:SetColor( Color( col.r, col.g, col.b, 255 ) )
