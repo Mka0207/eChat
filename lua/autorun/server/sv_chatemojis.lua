@@ -17,7 +17,7 @@ resource.AddFile( "materials/fwkzt/emojis/headcrab.png" )
 resource.AddFile( "materials/fwkzt/emojis/gmod.png" )
 resource.AddFile( "materials/fwkzt/emojis/pat_evil.png" )
 
-util.AddNetworkString( "NetWork_StoreText" )
+util.AddNetworkString( "echat_synctext" )
 
 --TODO: loop through emojis folder and resource add all jpeg/pngs.
 
@@ -25,13 +25,13 @@ hook.Add( "PlayerSay", "FilterEmonjis", function( ply, text )
 
 	if ply:IsAdmin() then
 		if ply:HasChatTag() then
-			PrintMessage(HUD_PRINTCONSOLE, "["..ply:GetChatTag().."] "..ply:Nick().. ": "..text)
+			PrintMessage(HUD_PRINTCONSOLE, "("..ply:SteamID()..") ".."["..ply:GetChatTag().."] "..ply:Nick().. ": "..text)
 		else
-			PrintMessage(HUD_PRINTCONSOLE, ply:Nick().. ": "..text)
+			PrintMessage(HUD_PRINTCONSOLE, "("..ply:SteamID()..") "..ply:Nick().. ": "..text)
 		end
 	end
 	
-	net.Start("NetWork_StoreText")
+	net.Start("echat_synctext")
 		net.WriteEntity( ply )
 		net.WriteString( text )
 	net.Broadcast()
