@@ -1,100 +1,7 @@
-
-	--print("--------------------------SH_FANCYTEXT")
 if SERVER then
-	--print("--------------------------SV_FANCYTEXT")
 	AddCSLuaFile()
 	return
 end
-
---print("--------------------------CL_FANCYTEXT")
-
-fText = {}
-
-function fText.demo()
-	fText.frame = vgui.Create("DFrame")
-	fText.frame:SetSize( 800, 310 )
-	fText.frame:SetTitle( "Demo" )
-	fText.frame:SetPos( ScrW()/2 - 200, ScrH()/2 - 150 )
-	
-	local fbox = vgui.Create("DFancyText", fText.frame)
-	fbox:SetSize( 400, 300 )
-	fbox:SetPos( 0, 10 )
-	fbox:SetFontInternal( "ChatFont" )
-	fbox:AppendText("Hello my name is Tom im 30 years old and I like to roll in the grass every saturday morning before breakfast.")
-	fbox:AppendText("Hej mit navn er Tom jeg er 30 år gammel og kan godt lide at rulle i græsset hver lørdag morgen før morgenmad.")
-	fbox:AppendText("A tiny text for you.\n")
-	fbox:AppendText("This sentence is ")
-	fbox:AppendImage({mat = Material("icon16/error.png"), w = 16, h = 16})
-	fbox:AppendText(" added using ")
-	fbox:AppendFunc(function(h)
-		local panel = vgui.Create( "AvatarImage" )
-		panel:SetSize(h, h)
-		panel:SetPlayer( LocalPlayer(), 16 )
-		return {panel = panel, h = h, w = h}
-	end)
-	fbox:AppendText(" 2 calls\n")
-	fbox:InsertColorChange( 255, 0, 0, 255 )
-	fbox:AppendText("1+1")
-	fbox:InsertColorChange( 255, 255, 255, 255 )
-	fbox:AppendText(" is 2 but ")
-	fbox:InsertColorChange( 255, 0, 0, 255 )
-	fbox:AppendText("2+2")
-	fbox:InsertColorChange( 255, 255, 255, 255 )
-	fbox:AppendText(" is 4 while ")
-	fbox:InsertColorChange( 255, 0, 0, 255 )
-	fbox:AppendText("4+4")
-	fbox:InsertColorChange( 255, 255, 255, 255 )
-	fbox:AppendText(" is 8 and ")
-	fbox:InsertColorChange( 255, 0, 0, 255 )
-	fbox:AppendText("8+8")
-	fbox:InsertColorChange( 255, 255, 255, 255 )
-	fbox:AppendText(" is 16 which is nice and all but lets eat now that we know all this wonderfull stuff.")
-	fbox:InsertColorChange( 0, 255, 0, 255 )
-	fbox:AppendText(" Ok? Goood because you need this hehehehe\n")
-	fbox:AppendText(" Ok? Goood because you need this hehehehe\n")
-	fbox:InsertColorChange( 255, 0, 255, 255 )
-	fbox:AppendText("Så gik den vidst ikke længere hva' det var ellers godt og sundt for alle de indblandede, man må håbe at de ikke kom slemt til skade eller såden noget. Det kan vi jo ikke lide vel? Ok jeg må hellere hoppe fra nu farveller mester løgsovs.\n")
-	fbox:AppendText("Så gik den vidst ikke længere hva' det var ellers godt og sundt for alle de indblandede, man må håbe at de ikke kom slemt til skade eller såden noget. Det kan vi jo ikke lide vel? Ok jeg må hellere hoppe fra nu farveller mester løgsovs.\n")
-	fbox:AppendText("Så gik den vidst ikke længere hva' det var ellers godt og sundt for alle de indblandede, man må håbe at de ikke kom slemt til skade eller såden noget. Det kan vi jo ikke lide vel? Ok jeg må hellere hoppe fra nu farveller mester løgsovs.\n")
-	fbox:AppendText("Så gik den vidst ikke længere hva' det var ellers godt og sundt for alle de indblandede, man må håbe at de ikke kom slemt til skade eller såden noget. Det kan vi jo ikke lide vel? Ok jeg må hellere hoppe fra nu farveller mester løgsovs.\n")
-	
-	local rbox = vgui.Create("RichText", fText.frame)
-	rbox:SetSize( 400, 300 )
-	rbox:SetPos( 400, 10 )
-	rbox:SetFontInternal( "ChatFont" )
-	rbox:AppendText("Hello my name is Tom im 30 years old and I like to roll in the grass every saturday morning before breakfast.")
-	rbox:AppendText("Hej mit navn er Tom jeg er 30 år gammel og kan godt lide at rulle i græsset hver lørdag morgen før morgenmad.")
-	rbox:AppendText("A tiny text for you.\n")
-	rbox:AppendText("This sentence is ")
-	rbox:AppendText("added using 2 calls\n")
-	rbox:InsertColorChange( 255, 0, 0, 255 )
-	rbox:AppendText("1+1")
-	rbox:InsertColorChange( 255, 255, 255, 255 )
-	rbox:AppendText(" is 2 but ")
-	rbox:InsertColorChange( 255, 0, 0, 255 )
-	rbox:AppendText("2+2")
-	rbox:InsertColorChange( 255, 255, 255, 255 )
-	rbox:AppendText(" is 4 while ")
-	rbox:InsertColorChange( 255, 0, 0, 255 )
-	rbox:AppendText("4+4")
-	rbox:InsertColorChange( 255, 255, 255, 255 )
-	rbox:AppendText(" is 8 and ")
-	rbox:InsertColorChange( 255, 0, 0, 255 )
-	rbox:AppendText("8+8")
-	rbox:InsertColorChange( 255, 255, 255, 255 )
-	rbox:AppendText(" is 16 which is nice and all but lets eat now that we know all this wonderfull stuff.")
-	rbox:InsertColorChange( 0, 255, 0, 255 )
-	rbox:AppendText(" Ok? Goood because you need this hehehehe\n")
-	rbox:AppendText(" Ok? Goood because you need this hehehehe\n")
-	rbox:InsertColorChange( 255, 0, 255, 255 )
-	rbox:AppendText("Så gik den vidst ikke længere hva' det var ellers godt og sundt for alle de indblandede, man må håbe at de ikke kom slemt til skade eller såden noget. Det kan vi jo ikke lide vel? Ok jeg må hellere hoppe fra nu farveller mester løgsovs.\n")
-	rbox:AppendText("Så gik den vidst ikke længere hva' det var ellers godt og sundt for alle de indblandede, man må håbe at de ikke kom slemt til skade eller såden noget. Det kan vi jo ikke lide vel? Ok jeg må hellere hoppe fra nu farveller mester løgsovs.\n")
-	rbox:AppendText("Så gik den vidst ikke længere hva' det var ellers godt og sundt for alle de indblandede, man må håbe at de ikke kom slemt til skade eller såden noget. Det kan vi jo ikke lide vel? Ok jeg må hellere hoppe fra nu farveller mester løgsovs.\n")
-	rbox:AppendText("Så gik den vidst ikke længere hva' det var ellers godt og sundt for alle de indblandede, man må håbe at de ikke kom slemt til skade eller såden noget. Det kan vi jo ikke lide vel? Ok jeg må hellere hoppe fra nu farveller mester løgsovs.\n")
-end
-
-
-
 
 PANEL = {}
 function PANEL:Init()
@@ -373,6 +280,8 @@ function PANEL:AppendItem( item )
 	if self.curwide + wide < self:GetWide() - self.margin*2 then
 		--If above passes, theres enough room to add another word
 		self.curwide = self.curwide + wide
+		--fix later.
+		--:283: bad argument #1 to 'insert' (table expected, got nil)
 		table.insert( self.lines[#self.lines], item )
     self.maxwide = math.max(self.curwide, self.maxwide)
 	else
