@@ -54,6 +54,15 @@ eChat.config = {
 	seeAvatars = true
 }
 
+surface.CreateFont( "eChatFontText", {
+	font = "Arial",
+	size = 22,
+	weight = 660,
+	underline = false,
+	antialias = true,
+	shadow = false
+} )
+
 surface.CreateFont( "eChatFont", {
 	font = "Verdana",
 	size = 16,
@@ -204,7 +213,7 @@ function eChat.buildBox()
 	
 	eChat.chatLog:SetSize( eChat.frame:GetWide() - 10, eChat.frame:GetTall() - 60 )
 	eChat.chatLog:SetPos( 5, 30 )
-	eChat.chatLog.RowSpacing = 14
+	eChat.chatLog.RowSpacing = 20
 	
 	eChat.chatLog.Paint = function( self, w, h )
 		draw.RoundedBox( 0, 0, 0, w, h, Color( 30, 30, 30, 100 ) )
@@ -220,11 +229,11 @@ function eChat.buildBox()
 				end
 			end
 		else
-			self:SetVisible( false )
+			eChat.hideBox()
 		end
 	end
 	eChat.chatLog.PerformLayout = function( self )
-		self:SetFontInternal("ChatFont")
+		self:SetFontInternal("eChatFontText")
 		self:SetFGColor( color_white )
 	end
 	eChat.oldPaint2 = eChat.chatLog.Paint
@@ -244,30 +253,32 @@ function eChat.buildBox()
 	end
 
 	say.Think = function( self )
-		local types = {"", "teamchat", "console"}
-		local s = {}
+		if eChat.frame and eChat.frame:IsValid() then
+			local types = {"", "teamchat", "console"}
+			local s = {}
 
-		if eChat.ChatType == types[2] then 
-			text = "Say (TEAM) :"	
-		elseif eChat.ChatType == types[3] then
-			text = "Console :"
-		else
-			text = "Say :"
-			s.pw = 45
-			s.sw = eChat.frame:GetWide() - 50
-		end
+			if eChat.ChatType == types[2] then 
+				text = "Say (TEAM) :"	
+			elseif eChat.ChatType == types[3] then
+				text = "Console :"
+			else
+				text = "Say :"
+				s.pw = 45
+				s.sw = eChat.frame:GetWide() - 50
+			end
 
-		if s then
-			if not s.pw then s.pw = self:GetWide() + 10 end
-			if not s.sw then s.sw = eChat.frame:GetWide() - self:GetWide() - 15 end
-		end
+			if s then
+				if not s.pw then s.pw = self:GetWide() + 10 end
+				if not s.sw then s.sw = eChat.frame:GetWide() - self:GetWide() - 15 end
+			end
 
-		local w, h = surface.GetTextSize( text )
-		self:SetSize( w + 5, 20 )
-		self:SetPos( 5, eChat.frame:GetTall() - eChat.entry:GetTall() - 5 )
+			local w, h = surface.GetTextSize( text )
+			self:SetSize( w + 5, 20 )
+			self:SetPos( 5, eChat.frame:GetTall() - eChat.entry:GetTall() - 5 )
 
-		eChat.entry:SetSize( s.sw, 20 )
-		eChat.entry:SetPos( s.pw, eChat.frame:GetTall() - eChat.entry:GetTall() - 5 )
+			eChat.entry:SetSize( s.sw, 20 )
+			eChat.entry:SetPos( s.pw, eChat.frame:GetTall() - eChat.entry:GetTall() - 5 )
+		end 
 	end	
 	
 	eChat.hideBox()
@@ -279,7 +290,6 @@ function eChat.hideBox()
 	eChat.chatLog.Paint = function() end
 	
 	eChat.chatLog:SetVerticalScrollbarEnabled( false )
-	eChat.chatLog:GotoTextEnd()
 	
 	eChat.lastMessage = eChat.lastMessage or CurTime() - eChat.config.fadeTime
 	
@@ -430,6 +440,8 @@ end
 
 local oldAddText = chat.AddText
 
+local matGradientLeft = CreateMaterial("gradient-l", "UnlitGeneric", {["$basetexture"] = "vgui/gradient-l", ["$vertexalpha"] = "1", ["$vertexcolor"] = "1", ["$ignorez"] = "1", ["$nomip"] = "1"})
+
 --// Overwrite chat.AddText to detour it into my chatbox
 function chat.AddText(...)
 	if not eChat.chatLog then
@@ -439,38 +451,52 @@ function chat.AddText(...)
 	local lastply = nil
 	local lastclr = color_white
 	
+	eChat.chatLog:AppendFunc(function(h)
+		local panel = vgui.Create( "DPanel" )
+		panel:SetSize(eChat.chatLog:GetCanvas():GetWide(), h+18)
+		panel.Paint = function(self,w,h)
+			surface.SetDrawColor(0, 0, 0, 100)
+			surface.SetMaterial(matGradientLeft)
+			surface.DrawTexturedRect(0, h/2-10, w, h/2)
+		end
+		return {panel = panel, h = 0, w = 0}
+	end)
+	
 	-- Iterate through the strings and colors
 	for _, obj in pairs( {...} ) do
 		if IsColor(obj) then
 			lastclr = Color( obj.r, obj.g, obj.b, obj.a )
+			--eChat.chatLog:InsertColorChange( obj.r, obj.g, obj.b, obj.a )
 		elseif type(obj) == "string"  then
+			--eChat.chatLog:AppendText( language.GetPhrase( obj ) )
+		
 			eChat.chatLog:AppendFunc(function(h)
 				local panel = vgui.Create( "DLabel" )
-				panel:SetSize(eChat.chatLog:GetWide(), h*BetterScreenScale())
-				panel:SetFont("ChatFont")
-				panel:Center()
-				
+				panel:SetSize(eChat.chatLog:GetCanvas():GetWide(), h)
+				panel:SetFont("eChatFontText")
 				panel:SetColor( lastclr )
 				panel:SetText( language.GetPhrase( obj ) )
-				
+			
 				local w2, h2 = panel:GetTextSize()
-				return {panel = panel, h = h*BetterScreenScale(), w = w2}
+				return {panel = panel, h = h2*0.5, w = w2}
 			end)
 			
 			if ( lastply and lastply:IsValid() ) and lastply.StoredText ~= nil then
-			
+				
 				--TODO: Setup support for appending html panels
+				--Allow emojis in tags.
+				--Trim spaces and fix text being inserted backwards etc.
 				for wrds, img in pairs( eChat.Emojis ) do
 					local str = lastply.StoredText
 					for s in string.gmatch(str, "[^%s,]+") do
 						if s:match( wrds ) then
 							eChat.chatLog:AppendFunc(function(h)
 								local panel = vgui.Create( "DImage", eChat.chatLog )
-								panel:SetSize( 40*BetterScreenScale(), h*BetterScreenScale() )
+								panel:SetSize( 28, 28 )
 								panel:SetImage(img)
 								panel:SetTooltip(wrds)
 						
-								return {panel = panel, h = h, w = 40*BetterScreenScale()}
+								return {panel = panel, h = h*0.5, w = 28}
 							end)
 						end
 					end
@@ -494,6 +520,7 @@ function chat.AddText(...)
 						return {panel = panel, h = h, w = h}
 					end)
 				end
+				
 				--HTML Emojis
 				--[[eChat.chatLog:AppendFunc(function(h)
 					local panel = vgui.Create( "DHTML" )
@@ -528,27 +555,31 @@ function chat.AddText(...)
 			if eChat.config.timeStamps then
 				local d = os.date("*t")
 				local time_txt = ("%02d:%02d"):format(((d.hour % 24) - 1) % 12 + 1, d.min)
+				
 				eChat.chatLog:AppendFunc(function(h)
 					local panel = vgui.Create( "DLabel", eChat.chatLog )
 					panel:SetSize(eChat.chatLog:GetWide(), h*BetterScreenScale())
-					panel:SetFont("ChatFont")
+					panel:SetFont("eChatFontText")
 					panel:SetColor( Color( 77, 255, 0, 255 ) )
 					panel:Center()
 					panel:SetText( "["..time_txt.." "..os.date("%p").."] " )
 					local w2, h2 = panel:GetTextSize()
-					return {panel = panel, h = h*BetterScreenScale(), w = w2}
+					return {panel = panel, h = h2*0.5, w = w2}
 				end)
+				
+				--eChat.chatLog:InsertColorChange( 77, 255, 0, 255 )
+				--eChat.chatLog:AppendText( "["..time_txt.." "..os.date("%p").."] " )
 			end
 			
-			--[[if eChat.config.seeAvatars then
+			if eChat.config.seeAvatars then
 				eChat.chatLog:AppendFunc(function(h)
 					local panel = vgui.Create( "AvatarImage", eChat.chatLog )
-					panel:SetSize(28*BetterScreenScale(), 28*BetterScreenScale())
-					panel:Center()
+					panel:SetSize(28, 28)
 					panel:SetPlayer( ply, 28 )
-					return {panel = panel, h = h, w = 28*BetterScreenScale()}
+					
+					return {panel = panel, h=h*0.5, w = 32}
 				end)
-			end]]
+			end
 			
 			if eChat.config.seeChatTags then
 				local col = ply:GetChatTagColor()
@@ -557,36 +588,49 @@ function chat.AddText(...)
 				eChat.chatLog:AppendFunc(function(h)
 					local panel = vgui.Create( "DLabel", eChat.chatLog )
 					panel:SetSize(eChat.chatLog:GetWide(), h)
-					panel:SetFont("ChatFont")
+					panel:SetFont("eChatFontText")
+					panel:SetText("")
 					if ply:HasChatTag() then
 						panel:SetColor( Color( tbl[1], tbl[2], tbl[3], tbl[4] ) )
-						panel:SetText( "["..ply:GetChatTag().."] " )
+						panel:SetText( "[ "..ply:GetChatTag().." ] " )
 					else
 						local DTag = DefaultTag[ string.lower( ply:GetUserGroup() ) ]
 						if DTag then
 							panel:SetColor( DTag[2] )
 							panel:SetText( "["..DTag[1].."] " )
-						else
-							panel:SetColor( color_white )
-							panel:SetText( "" )
 						end
 					end
 					local w2, h2 = panel:GetTextSize()
-					return {panel = panel, h = h*BetterScreenScale(), w = w2}
+					return {panel = panel, h = h2*0.5, w = w2}
 				end)
+				
+				--[[if ply:HasChatTag() then
+					eChat.chatLog:InsertColorChange( tbl[1], tbl[2], tbl[3], tbl[4] )
+					eChat.chatLog:AppendText( "["..ply:GetChatTag().."] " )
+				else
+					local DTag = DefaultTag[ string.lower( ply:GetUserGroup() ) ]
+					if DTag then
+						eChat.chatLog:InsertColorChange( DTag[2] )
+						eChat.chatLog:AppendText( "["..DTag[1].."] " )
+					end
+				end]]
 			end
 			
 			eChat.chatLog:AppendFunc(function(h)
 				local panel = vgui.Create( "DLabel", eChat.chatLog )
 				panel:SetSize(eChat.chatLog:GetWide(), h)
-				panel:SetFont("ChatFont")
+				panel:SetFont("eChatFontText")
 				local col = GAMEMODE:GetTeamColor( obj )
 				panel:SetColor( Color( col.r, col.g, col.b, 255 ) )
 				panel:Center()
 				panel:SetText( obj:Nick() )
 				local w2, h2 = panel:GetTextSize()
-				return {panel = panel, h = h*BetterScreenScale(), w = w2}
+				return {panel = panel, h = h2*0.5, w = w2}
 			end)
+			
+			--local col_tab = team.GetColor( ply:Team() )
+			--eChat.chatLog:InsertColorChange( col_tab.r, col_tab.g, col_tab.b, col_tab.a )
+			--eChat.chatLog:AppendText( obj:Nick() )
 
 			lastply = obj
 		end
@@ -617,6 +661,11 @@ hook.Add( "ChatText", "echat_joinleave", function( index, name, text, type )
 		return true
 	end
 end)
+
+net.Receive( "echat_printmessage", function( len, pl )
+	--print( "Message from server received. Its length is " .. len .. "." )
+	chat.AddText( Color( 0, 128, 255, 255 ), net.ReadString() )
+end )
 
 --// Stops the default chat box from being opened
 hook.Remove("PlayerBindPress", "echat_hijackbind")
