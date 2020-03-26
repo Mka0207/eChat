@@ -31,15 +31,6 @@ local function BetterScreenScale()
 	return math.max(ScrH() / 1080, 0.851) * 1.0
 end
 
---Clean up hooks not required for a custom chatbox.
-timer.Simple(0.1, function()
-	if GAMEMODE_NAME != 'terrortown' then
-		hook.Remove( 'OnPlayerChat', 'FWKZT.ChatTags.AddTag' )
-	else
-		hook.Remove( 'OnPlayerChat', 'FWKZT.ChatTags.AddTag.TTT' )
-	end
-end )
-
 eChat = {}
 
 include( 'autorun/sh_chat.lua' )
@@ -668,10 +659,10 @@ hook.Add( "ChatText", "echat_joinleave", function( index, name, text, type )
 	end
 end)
 
-net.Receive( "echat_printmessage", function( len, pl )
+--[[net.Receive( "echat_printmessage", function( len, pl )
 	--print( "Message from server received. Its length is " .. len .. "." )
 	chat.AddText( Color( 0, 128, 255, 255 ), net.ReadString() )
-end )
+end )]]
 
 --// Stops the default chat box from being opened
 hook.Remove("PlayerBindPress", "echat_hijackbind")

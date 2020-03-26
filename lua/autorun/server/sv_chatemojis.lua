@@ -18,9 +18,9 @@ resource.AddFile( "materials/fwkzt/emojis/gmod.png" )
 resource.AddFile( "materials/fwkzt/emojis/pat_evil.png" )
 
 util.AddNetworkString( "echat_synctext" )
-util.AddNetworkString( "echat_printmessage" )
+--util.AddNetworkString( "echat_printmessage" )
 
-local oldPrintMessage = PrintMessage
+--[[local oldPrintMessage = PrintMessage
 function NewPrintMessage( type, message )
 	if type ~= 3 then
 		oldPrintMessage( type, message )
@@ -30,7 +30,7 @@ function NewPrintMessage( type, message )
 		net.Broadcast()
 	end
 end
-PrintMessage = NewPrintMessage
+PrintMessage = NewPrintMessage]]
 
 --TODO: loop through emojis folder and resource add all jpeg/pngs.
 
