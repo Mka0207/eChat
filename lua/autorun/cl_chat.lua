@@ -371,11 +371,11 @@ function eChat.openSettings()
 	serverName:SizeToContents()
 	serverName:SetPos( 5, 4 )
 	
-	--[[local avatar_check = vgui.Create("DCheckBoxLabel", eChat.frameS)
+	local avatar_check = vgui.Create("DCheckBoxLabel", eChat.frameS)
 	avatar_check:SetText("Avatars")
 	avatar_check:SetValue(eChat.config.seeAvatars)
 	avatar_check:SizeToContents()
-	eChat.paneList:AddItem(avatar_check)]]
+	eChat.paneList:AddItem(avatar_check)
 	
 	local tags_check = vgui.Create("DCheckBoxLabel", eChat.frameS)
 	tags_check:SetText("Tags")
@@ -414,7 +414,7 @@ function eChat.openSettings()
 		eChat.frameS:Close()
 		
 		eChat.config.timeStamps = stamps_check:GetChecked()
-		--eChat.config.seeAvatars = avatar_check:GetChecked()
+		eChat.config.seeAvatars = avatar_check:GetChecked()
 		eChat.config.seeChatTags = tags_check:GetChecked()
 		eChat.config.fadeTime = tonumber(time_slider:GetValue()) or eChat.config.fadeTime
 	end
