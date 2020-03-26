@@ -89,7 +89,7 @@ end)
 --// Builds the chatbox but doesn't display it
 function eChat.buildBox()
 	eChat.frame = vgui.Create("DFrame")
-	eChat.frame:SetSize( ScrW()*0.480, ScrH()*0.25 )
+	eChat.frame:SetSize( ScrW()*0.360, ScrH()*0.25 )
 	eChat.frame:SetTitle("")
 	eChat.frame:ShowCloseButton( false )
 	eChat.frame:SetDraggable( false )
