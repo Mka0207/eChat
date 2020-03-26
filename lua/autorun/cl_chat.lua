@@ -56,7 +56,7 @@ eChat.config = {
 
 surface.CreateFont( "eChatFontText", {
 	font = "Arial",
-	size = 22,
+	size = 18,
 	weight = 660,
 	underline = false,
 	antialias = true,
@@ -89,7 +89,7 @@ end)
 --// Builds the chatbox but doesn't display it
 function eChat.buildBox()
 	eChat.frame = vgui.Create("DFrame")
-	eChat.frame:SetSize( ScrW()*0.375, ScrH()*0.25 )
+	eChat.frame:SetSize( ScrW()*0.480, ScrH()*0.25 )
 	eChat.frame:SetTitle("")
 	eChat.frame:ShowCloseButton( false )
 	eChat.frame:SetDraggable( false )
@@ -475,8 +475,14 @@ function chat.AddText(...)
 				panel:SetSize(eChat.chatLog:GetCanvas():GetWide(), h)
 				panel:SetFont("eChatFontText")
 				panel:SetColor( lastclr )
-				panel:SetText( language.GetPhrase( obj ) )
-			
+				
+				if #obj > 63 then
+					--panel:SetText( language.GetPhrase( string.sub( obj, 63, #obj ).."\n" ) )
+					panel:SetText( language.GetPhrase( string.sub( obj, 1, 62 ) ) .."\n" .. language.GetPhrase( string.sub( obj, 63, #obj ) ) )
+				else
+					panel:SetText( language.GetPhrase( obj ) )
+				end
+				
 				local w2, h2 = panel:GetTextSize()
 				return {panel = panel, h = h2*0.5, w = w2}
 			end)
