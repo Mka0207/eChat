@@ -8,4 +8,5 @@ Notable differences from default ExhoChat :
 - Hyperlink support for specific urls.
 
 Uses FancyText by https://github.com/Herover/fancytext
+
 Uses Moat Effects by https://github.com/Gigabait/moat-texteffects/
