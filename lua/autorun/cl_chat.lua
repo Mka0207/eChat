@@ -552,7 +552,7 @@ function chat.AddText(...)
 				--print(start)
 				
 				--HTML Emojis
-				if letter == "html_test" then
+				--[[if letter == "html_test" then
 					eChat.chatLog:AppendFunc(function(h)
 						local panel = vgui.Create( "DHTML" )
 						panel:SetSize( 28, h )
@@ -563,7 +563,7 @@ function chat.AddText(...)
 						return {panel = panel, h = -28/2+h/2+bar_spacing/2, w = h}
 					end)
 					continue
-				end
+				end]]
 				
 				if #letter == 0 then continue end
 				
