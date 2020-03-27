@@ -528,8 +528,10 @@ function chat.AddText(...)
 	
 	-- Iterate through the strings and colors
 	for _, obj in pairs( {...} ) do
+		--print(obj)
 		if IsColor(obj) then
 			lastclr = Color( obj.r, obj.g, obj.b, obj.a )
+			--print(lastclr)
 			--eChat.chatLog:InsertColorChange( obj.r, obj.g, obj.b, obj.a )
 		elseif type(obj) == "string"  then
 			--eChat.chatLog:AppendText( language.GetPhrase( obj ) )
@@ -582,6 +584,7 @@ function chat.AddText(...)
 					panel:SetSize(eChat.chatLog:GetCanvas():GetWide(), h)
 					panel:SetFont("eChatFontText")
 					panel:SetColor(Color(0,0,0,0))
+					panel.LastColor = lastclr
 					panel:SetText(letter.." ")
 					panel.SetTime = CurTime() + eChat.config.fadeTime
 					panel.Think = function() HidePanels(panel) end
@@ -609,7 +612,7 @@ function chat.AddText(...)
 						elseif fade then
 							DrawFadingText(2, string.sub( message, #'[g]'+1, #message ), "eChatFontText", 0, height/2, lastclr, Color(255,0,0,255), true, true)
 						else
-							surface.SetTextColor( lastclr )
+							surface.SetTextColor( panel.LastColor )
 							surface.SetTextPos( 0, height/2 ) 
 							surface.DrawText( message )	
 						end
@@ -772,7 +775,7 @@ hook.Add( "ChatText", "echat_joinleave", function( index, name, text, type )
 	
 	if type != "chat" then
 		if ( type == "joinleave" ) then return true end
-		chat.AddText( Color( 100, 100, 255 ), "[GAME]", Color( 255, 255, 255 ), text )
+		chat.AddText( Color( 255, 255, 255 ), text )
 		return true
 	end
 end)
