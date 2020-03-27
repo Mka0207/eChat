@@ -88,7 +88,16 @@ function PANEL:Init()
 						w = i_v[2].w
 						h = i_v[2].h
 						i_v[2].panel:SetPos( lastx, liney + i_v[2].h )
-						--i_v[2].panel:SetVisible( true )
+						
+						if eChat.entry:IsVisible() then
+							if not i_v[2].panel:IsVisible() then
+								i_v[2].panel:Show()
+							end
+						else
+							if i_v[2].panel.SetTime == nil then
+								i_v[2].panel:Hide()
+							end
+						end
 					end
 					lastx = lastx + w
 					last_item = i_v
@@ -272,12 +281,9 @@ function PANEL:AppendItem( item )
 		table.remove( self.lines, 1 )
 	end
 	local wide = item[2].w
-	local breakline = item[2].breakline
 	--PrintTable(item[2])
 	--print("sepwide",self.sepwide)
 	--print("word",part,self.curwide, self.sepwide, wide, "<", self:GetWide(),self)
-	
-	
 	
 	if self.curwide + wide < self:GetWide() - self.margin*2 then
 		--print('not big, allowing same line')

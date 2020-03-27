@@ -84,7 +84,7 @@ hook.Add("InitPostEntity", "echat_init", function()
 	eChat.buildBox()
 end)
 
-hook.Add("Think", "eChat.ClosePanelsOverTime", function()
+--[[hook.Add("Think", "eChat.ClosePanelsOverTime", function()
 	if eChat then
 		if eChat.chatLog and eChat.chatLog:IsValid() then
 			for _, panels in ipairs( eChat.chatLog:GetCanvas():GetChildren() ) do
@@ -100,7 +100,7 @@ hook.Add("Think", "eChat.ClosePanelsOverTime", function()
 			end
 		end
 	end
-end )
+end )]]
 
 --// Builds the chatbox but doesn't display it
 function eChat.buildBox()
