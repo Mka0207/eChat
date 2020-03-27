@@ -37,7 +37,8 @@ function PANEL:Init()
 	
 	end
 	local me = self
-	self.pnlCanvas.Paint = function()
+	self.pnlCanvas.Paint = function(self,w,h)
+		--draw.RoundedBox( 0, 0, 0, w, h, Color( 30, 30, 30, 200 ) )
 		local color = Color(255, 255, 255, 255)
 		local font = me.fontInternal or self.font
 		local last_item = false
@@ -47,7 +48,7 @@ function PANEL:Init()
 		local spacer, ctall = surface.GetTextSize( " " )
 		me.sepwide = spacer
 		me.chartall = ctall
-		local liney = -ctall
+		local liney = 0
 		for l_n=1, #me.lines do
 			l_v = me.lines[l_n]
 			local lastx = 0
@@ -87,7 +88,7 @@ function PANEL:Init()
 						w = i_v[2].w
 						h = i_v[2].h
 						i_v[2].panel:SetPos( lastx, liney + i_v[2].h )
-						i_v[2].panel:SetVisible( true )
+						--i_v[2].panel:SetVisible( true )
 					end
 					lastx = lastx + w
 					last_item = i_v
@@ -96,7 +97,7 @@ function PANEL:Init()
 				for i_n=1, #l_v do
 					i_v = l_v[i_n]
 					if i_v[1] == "panel" then 
-						i_v[2].panel:SetVisible( false )
+						--i_v[2].panel:SetVisible( false )
 					elseif i_v[1] == "font" then
 						spacer, ctall = surface.GetTextSize( " " )
 						me.sepwide = spacer
@@ -194,15 +195,13 @@ function PANEL:_PerformLayout()
 	end
 
 	local Wide = self:GetWide()
-	local YPos = 0
+	--local YPos = 0
 	
 	--self:Rebuild()
 	
-	self.pnlCanvas:SetTall( #self.lines * self.chartall or 7 )
-	
+	self.pnlCanvas:SetTall( #self.lines * self.chartall )
 	self.VBar:SetUp( self:GetTall(), self.pnlCanvas:GetTall() )
-	YPos = self.VBar:GetOffset()
-		
+	--YPos = self.VBar:GetOffset()
 	--if ( self.VBar.Enabled ) then Wide = Wide - self.VBar:GetWide() end
 
 	self.pnlCanvas:SetPos( 0, self.scroll )
@@ -242,9 +241,7 @@ function PANEL:Clear()
 end
 
 function PANEL:GotoTextEnd()
-
-	self.VBar:SetScroll(self.pnlCanvas:GetTall())
-	
+	self.VBar:SetScroll( self.pnlCanvas:GetTall() )
 end
 
 function PANEL:SetVerticalScrollbarEnabled( bool )
@@ -277,18 +274,20 @@ function PANEL:AppendItem( item )
 	local wide = item[2].w
 	--print("sepwide",self.sepwide)
 	--print("word",part,self.curwide, self.sepwide, wide, "<", self:GetWide(),self)
+	
 	if self.curwide + wide < self:GetWide() - self.margin*2 then
+		--print('not big, allowing same line')
 		--If above passes, theres enough room to add another word
 		self.curwide = self.curwide + wide
 		--fix later.
 		--:283: bad argument #1 to 'insert' (table expected, got nil)
 		table.insert( self.lines[#self.lines], item )
-    self.maxwide = math.max(self.curwide, self.maxwide)
+		self.maxwide = math.max(self.curwide, self.maxwide)
 	else
 		--Otherwise add another line before inserting part
-		--print("newline", part)
-    table.insert(self.lines, {})
-    self.maxwide = math.max(self.curwide, self.maxwide)
+		--print("newline")
+		table.insert(self.lines, {})
+		self.maxwide = math.max(self.curwide, self.maxwide)
 		self.curwide = wide
 		table.insert( self.lines[#self.lines], item )
 	end

@@ -17,21 +17,6 @@ resource.AddFile( "materials/fwkzt/emojis/headcrab.png" )
 resource.AddFile( "materials/fwkzt/emojis/gmod.png" )
 resource.AddFile( "materials/fwkzt/emojis/pat_evil.png" )
 
-util.AddNetworkString( "echat_synctext" )
---util.AddNetworkString( "echat_printmessage" )
-
---[[local oldPrintMessage = PrintMessage
-function NewPrintMessage( type, message )
-	if type ~= 3 then
-		oldPrintMessage( type, message )
-	else
-		net.Start("echat_printmessage")
-			net.WriteString( message )
-		net.Broadcast()
-	end
-end
-PrintMessage = NewPrintMessage]]
-
 --TODO: loop through emojis folder and resource add all jpeg/pngs.
 
 hook.Add( "PlayerSay", "FilterEmonjis", function( ply, text )
@@ -41,20 +26,6 @@ hook.Add( "PlayerSay", "FilterEmonjis", function( ply, text )
 			PrintMessage(HUD_PRINTCONSOLE, "("..ply:SteamID()..") ".."["..ply:GetChatTag().."] "..ply:Nick().. ": "..text)
 		else
 			PrintMessage(HUD_PRINTCONSOLE, "("..ply:SteamID()..") "..ply:Nick().. ": "..text)
-		end
-	end
-	
-	net.Start("echat_synctext")
-		net.WriteEntity( ply )
-		net.WriteString( text )
-	net.Broadcast()
-	
-	local oldtext = text
-	for wrds, img in pairs( eChat.Emojis ) do
-		for s in string.gmatch(text, "[^%s,]+") do
-			if s:match( wrds ) then
-				return string.Replace( oldtext, s, " " )
-			end
 		end
 	end
 	
