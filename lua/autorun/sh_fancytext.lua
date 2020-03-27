@@ -272,6 +272,7 @@ function PANEL:AppendItem( item )
 		table.remove( self.lines, 1 )
 	end
 	local wide = item[2].w
+	--PrintTable(item[2])
 	--print("sepwide",self.sepwide)
 	--print("word",part,self.curwide, self.sepwide, wide, "<", self:GetWide(),self)
 	

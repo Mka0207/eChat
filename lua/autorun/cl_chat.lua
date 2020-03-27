@@ -92,8 +92,9 @@ hook.Add("Think", "eChat.ClosePanelsOverTime", function()
 				if eChat.entry:IsVisible() then
 					if not panels:IsVisible() then
 						panels:Show()
-					else
-						panels.SetTime = CurTime() + 0.01
+						panels.SetTime = CurTime() + eChat.config.fadeTime/2
+					--else
+						--panels.SetTime = CurTime() + 0.01
 					end
 				--[[else
 					if panels:IsVisible() then
@@ -484,9 +485,11 @@ local function EmojiCheck(text)
 end
 
 local function HidePanels(panel)
-	if panel.SetTime ~= nil and CurTime() > panel.SetTime then
-		panel:Hide()
-		panel.SetTime = nil
+	if not eChat.entry:IsVisible() then
+		if panel.SetTime ~= nil and CurTime() > panel.SetTime then
+			panel:Hide()
+			panel.SetTime = nil
+		end
 	end
 end
 
