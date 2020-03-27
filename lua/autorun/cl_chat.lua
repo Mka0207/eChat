@@ -88,21 +88,14 @@ hook.Add("Think", "eChat.ClosePanelsOverTime", function()
 	if eChat then
 		if eChat.chatLog and eChat.chatLog:IsValid() then
 			for _, panels in ipairs( eChat.chatLog:GetCanvas():GetChildren() ) do
-			
 				if eChat.entry:IsVisible() then
 					if not panels:IsVisible() then
 						panels:Show()
-						panels.SetTime = CurTime() + eChat.config.fadeTime/2
-					--else
-						--panels.SetTime = CurTime() + 0.01
 					end
-				--[[else
-					if panels:IsVisible() then
-						if panels.SetTime ~= nil and CurTime() > panels.SetTime then
-							panels:Hide()
-							panels.SetTime = nil
-						end
-					end]]
+				else
+					if panels.SetTime == nil then
+						panels:Hide()
+					end
 				end
 			end
 		end
@@ -314,34 +307,43 @@ end
 
 --// Hides the chat box but not the messages
 function eChat.hideBox()
-	eChat.frame.Paint = function() end
-	eChat.chatLog.Paint = function() end
-	
-	eChat.chatLog:SetVerticalScrollbarEnabled( false )
-	
-	--eChat.lastMessage = eChat.lastMessage or CurTime() - eChat.config.fadeTime
-	
-	-- Hide the chatbox except the log
-	local children = eChat.frame:GetChildren()
-	for _, pnl in pairs( children ) do
-		if pnl == eChat.frame.btnMaxim or pnl == eChat.frame.btnClose or pnl == eChat.frame.btnMinim then continue end
+	if eChat.frame and eChat.frame:IsValid() then
+		eChat.frame.Paint = function() end
+		eChat.chatLog.Paint = function() end
 		
-		if pnl != eChat.chatLog then
-			pnl:SetVisible( false )
+		--eChat.chatLog:SetVerticalScrollbarEnabled( false )
+		local scrollbar = eChat.chatLog:GetChildren()[2]
+		scrollbar:Hide()
+		
+		--[[local topbutton, bottom, grip = scrollbar:GetChildren()[1], scrollbar:GetChildren()[2], scrollbar:GetChildren()[3]
+		topbutton.Paint = function() end
+		bottom.Paint = function() end
+		grip.Paint = function() end]]
+		
+		--eChat.lastMessage = eChat.lastMessage or CurTime() - eChat.config.fadeTime
+		
+		-- Hide the chatbox except the log
+		local children = eChat.frame:GetChildren()
+		for _, pnl in pairs( children ) do
+			if pnl == eChat.frame.btnMaxim or pnl == eChat.frame.btnClose or pnl == eChat.frame.btnMinim then continue end
+			
+			if pnl != eChat.chatLog then
+				pnl:SetVisible( false )
+			end
 		end
+		
+		-- Give the player control again
+		eChat.frame:SetMouseInputEnabled( false )
+		eChat.frame:SetKeyboardInputEnabled( false )
+		gui.EnableScreenClicker( false )
+
+		-- We are done chatting
+		gamemode.Call("FinishChat")
+		
+		-- Clear the text entry
+		eChat.entry:SetText( "" )
+		gamemode.Call( "ChatTextChanged", "" )
 	end
-	
-	-- Give the player control again
-	eChat.frame:SetMouseInputEnabled( false )
-	eChat.frame:SetKeyboardInputEnabled( false )
-	gui.EnableScreenClicker( false )
-	
-	-- We are done chatting
-	gamemode.Call("FinishChat")
-	
-	-- Clear the text entry
-	eChat.entry:SetText( "" )
-	gamemode.Call( "ChatTextChanged", "" )
 end
 
 --// Shows the chat box
@@ -485,9 +487,11 @@ local function EmojiCheck(text)
 end
 
 local function HidePanels(panel)
-	if not eChat.entry:IsVisible() then
+	if eChat.entry and eChat.entry:IsValid() then
 		if panel.SetTime ~= nil and CurTime() > panel.SetTime then
-			panel:Hide()
+			if not eChat.entry:IsVisible() then
+				panel:Hide()
+			end
 			panel.SetTime = nil
 		end
 	end
@@ -550,10 +554,6 @@ function chat.AddText(...)
 					continue
 				end
 				
-				--local pattern = '%[b]'
-				--local start = string.find( letter, pattern )
-				--print(start)
-				
 				--HTML Emojis
 				--[[if letter == "html_test" then
 					eChat.chatLog:AppendFunc(function(h)
@@ -572,13 +572,48 @@ function chat.AddText(...)
 				
 				--insert normal text
 				eChat.chatLog:AppendFunc(function(h)
+					--[[local bgpanel = vgui.Create( "DPanel" )
+					bgpanel:SetSize( eChat.chatLog:GetCanvas():GetWide(), h )
+					bgpanel.SetTime = CurTime() + eChat.config.fadeTime
+					bgpanel.Think = function() HidePanels(bgpanel) end
+					bgpanel.Paint = function() end]]
+					
 					local panel = vgui.Create( "DLabel" )
 					panel:SetSize(eChat.chatLog:GetCanvas():GetWide(), h)
 					panel:SetFont("eChatFontText")
-					panel:SetColor(lastclr)
+					panel:SetColor(Color(0,0,0,0))
 					panel:SetText(letter.." ")
 					panel.SetTime = CurTime() + eChat.config.fadeTime
 					panel.Think = function() HidePanels(panel) end
+					
+					panel.Paint = function(self,w,h)
+						surface.SetFont("eChatFontText")
+
+						local message = letter.." "
+						local width, height = surface.GetTextSize(message)
+						
+						local elec = string.find( letter, '%[e]' )
+						local glow = string.find( letter, '%[g]' )
+						local bounce = string.find( letter, '%[b]' )
+						local rainbow = string.find( letter, '%[r]' )
+						local fade = string.find( letter, '%[f]' )
+						
+						if elec then
+							DrawElectricText(2, string.sub( message, #'[b]'+1, #message ), "eChatFontText", 0, height/2, lastclr, Color(255,255,255,255), true, true)
+						elseif glow then
+							DrawGlowingText(2, string.sub( message, #'[g]'+1, #message ), "eChatFontText", 0, height/2, lastclr, Color(255,255,255,255), true, true)
+						elseif bounce then
+							DrawBouncingText(1, 2, string.sub( message, #'[g]'+1, #message ), "eChatFontText", 0, height/2, lastclr, true, true)
+						elseif rainbow then
+							DrawRainbowText(2, string.sub( message, #'[g]'+1, #message ), "eChatFontText", 0, height/2, true, true)
+						elseif fade then
+							DrawFadingText(2, string.sub( message, #'[g]'+1, #message ), "eChatFontText", 0, height/2, lastclr, Color(255,0,0,255), true, true)
+						else
+							surface.SetTextColor( lastclr )
+							surface.SetTextPos( 0, height/2 ) 
+							surface.DrawText( message )	
+						end
+					end
 	
 					local w2, h2 = panel:GetTextSize()
 					
@@ -737,47 +772,10 @@ hook.Add( "ChatText", "echat_joinleave", function( index, name, text, type )
 	
 	if type != "chat" then
 		if ( type == "joinleave" ) then return true end
-		
-		--background gradient
-		eChat.chatLog:AppendFunc(function(h)
-			local panel = vgui.Create( "DPanel" )
-			panel:SetSize(eChat.chatLog:GetCanvas():GetWide(), h+18)
-			panel.Paint = function(self,w,h)
-				surface.SetDrawColor(0, 0, 0, 100)
-				surface.SetMaterial(matGradientLeft)
-				surface.DrawTexturedRect(0, h/2-10, w, h/2)
-			end
-			panel.SetTime = CurTime() + eChat.config.fadeTime
-			panel.Think = function() HidePanels(panel) end
-			return {panel = panel, h = 0, w = 0}
-		end)
-	
-	--	eChat.chatLog:InsertColorChange( 255, 255, 255, 255 )
-	--	eChat.chatLog:AppendText( text.."\n" )
-		eChat.chatLog:AppendFunc(function(h)
-			local panel = vgui.Create( "DLabel" )
-			panel:SetSize(eChat.chatLog:GetCanvas():GetWide(), h)
-			panel:SetFont("eChatFontText")
-			panel:SetColor(Color(255, 255, 255, 255))
-			panel:SetText(text)
-			panel.SetTime = CurTime() + eChat.config.fadeTime
-			panel.Think = function() HidePanels(panel) end
-
-			local w2, h2 = panel:GetTextSize()
-			
-			return {panel = panel, h = h2*0.5, w = w2}
-		end)
-		eChat.chatLog:SetVisible( true )
-		--eChat.lastMessage = CurTime()
-		eChat.chatLog:GotoTextEnd()
+		chat.AddText( Color( 100, 100, 255 ), "[GAME]", Color( 255, 255, 255 ), text )
 		return true
 	end
 end)
-
---[[net.Receive( "echat_printmessage", function( len, pl )
-	--print( "Message from server received. Its length is " .. len .. "." )
-	chat.AddText( Color( 0, 128, 255, 255 ), net.ReadString() )
-end )]]
 
 --// Stops the default chat box from being opened
 hook.Remove("PlayerBindPress", "echat_hijackbind")

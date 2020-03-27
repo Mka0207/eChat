@@ -63,7 +63,7 @@ function PANEL:Init()
 						if last_item and last_item[1] == "text" then
 							--lastx = lastx + spacer
 						end
-						self:PaintTextpart( i_v[2].text, font, lastx, liney + ctall, color )
+						me:PaintTextpart( i_v[2].text, font, lastx, liney + ctall, color )
 					elseif i_v[1] == "image" then
 						w = i_v[2].w
 						h = i_v[2].h
@@ -97,7 +97,7 @@ function PANEL:Init()
 				for i_n=1, #l_v do
 					i_v = l_v[i_n]
 					if i_v[1] == "panel" then 
-						--i_v[2].panel:SetVisible( false )
+						i_v[2].panel:SetVisible( false )
 					elseif i_v[1] == "font" then
 						spacer, ctall = surface.GetTextSize( " " )
 						me.sepwide = spacer
@@ -272,9 +272,12 @@ function PANEL:AppendItem( item )
 		table.remove( self.lines, 1 )
 	end
 	local wide = item[2].w
+	local breakline = item[2].breakline
 	--PrintTable(item[2])
 	--print("sepwide",self.sepwide)
 	--print("word",part,self.curwide, self.sepwide, wide, "<", self:GetWide(),self)
+	
+	
 	
 	if self.curwide + wide < self:GetWide() - self.margin*2 then
 		--print('not big, allowing same line')
