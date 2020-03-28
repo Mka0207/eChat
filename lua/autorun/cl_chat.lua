@@ -513,13 +513,6 @@ function chat.AddText(...)
 			surface.SetDrawColor(0, 0, 0, 100)
 			surface.SetMaterial(matGradientLeft)
 			surface.DrawTexturedRect(0, bar_spacing, w, h-bar_spacing)
-			--surface.SetDrawColor( Color( 245, 66, 66, 100 ) )
-			--surface.DrawOutlinedRect( 0, 0, w, h )
-			
-			--DrawFadingText(2, "Test", "eChatFontHeader", w/2, 0, Color( 245, 66, 66, 100 ), Color( 255, 255, 255, 255 ), true, true)
-			--DrawGlowingText(2, "haha", "eChatFontHeader", w/2-50, 0, Color( 245, 66, 66, 100 ), Color( 255, 255, 255, 255 ), true, true)
-			--DrawBouncingText(1, 2, "ok boomer", "eChatFontHeader", w/2, 0, Color( 245, 66, 66, 100 ), true, true)
-		
 		end
 		panel.SetTime = CurTime() + eChat.config.fadeTime
 		panel.Think = function() HidePanels(panel) end
@@ -695,6 +688,10 @@ function chat.AddText(...)
 					panel:SetPlayer( ply, 28 )
 					panel.SetTime = CurTime() + eChat.config.fadeTime
 					panel.Think = function() HidePanels(panel) end
+					panel.PaintOver = function(self,w,h)
+						surface.SetDrawColor( team.GetColor(ply:Team()) )
+						surface.DrawOutlinedRect( 0, 0, w, h )
+					end
 					
 					return {panel = panel, h=-28/2+h/2+bar_spacing/2, w = 32}
 				end)

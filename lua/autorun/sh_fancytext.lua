@@ -89,13 +89,15 @@ function PANEL:Init()
 						h = i_v[2].h
 						i_v[2].panel:SetPos( lastx, liney + i_v[2].h )
 						
-						if eChat.entry:IsVisible() then
-							if not i_v[2].panel:IsVisible() then
-								i_v[2].panel:Show()
-							end
-						else
-							if i_v[2].panel.SetTime == nil then
-								i_v[2].panel:Hide()
+						if eChat.entry and eChat.entry:IsValid() then
+							if eChat.entry:IsVisible() then
+								if not i_v[2].panel:IsVisible() then
+									i_v[2].panel:Show()
+								end
+							else
+								if i_v[2].panel.SetTime == nil then
+									i_v[2].panel:Hide()
+								end
 							end
 						end
 					end
