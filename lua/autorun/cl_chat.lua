@@ -689,8 +689,10 @@ function chat.AddText(...)
 					panel.SetTime = CurTime() + eChat.config.fadeTime
 					panel.Think = function() HidePanels(panel) end
 					panel.PaintOver = function(self,w,h)
-						surface.SetDrawColor( team.GetColor(ply:Team()) )
-						surface.DrawOutlinedRect( 0, 0, w, h )
+						if ply and ply:IsValid() then
+							surface.SetDrawColor( team.GetColor(ply:Team()) )
+							surface.DrawOutlinedRect( 0, 0, w, h )
+						end
 					end
 					
 					return {panel = panel, h=-28/2+h/2+bar_spacing/2, w = 32}
