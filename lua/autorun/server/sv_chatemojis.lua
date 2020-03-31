@@ -21,12 +21,10 @@ resource.AddFile( "materials/fwkzt/emojis/pat_evil.png" )
 
 hook.Add( "PlayerSay", "FilterEmonjis", function( ply, text )
 
-	if ply:IsAdmin() then
-		if ply:HasChatTag() then
-			PrintMessage(HUD_PRINTCONSOLE, "("..ply:SteamID()..") ".."["..ply:GetChatTag().."] "..ply:Nick().. ": "..text)
-		else
-			PrintMessage(HUD_PRINTCONSOLE, "("..ply:SteamID()..") "..ply:Nick().. ": "..text)
-		end
+	if ply:HasChatTag() then
+		PrintMessage(HUD_PRINTCONSOLE, "("..ply:SteamID()..") ".."["..ply:GetChatTag().."] "..ply:Nick().. ": "..text)
+	else
+		PrintMessage(HUD_PRINTCONSOLE, "("..ply:SteamID()..") "..ply:Nick().. ": "..text)
 	end
 	
 	--TODO: only pass non url text.
