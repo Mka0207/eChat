@@ -303,7 +303,9 @@ function PANEL:AppendItem( item )
 		table.insert(self.lines, {})
 		self.maxwide = math.max(self.curwide, self.maxwide)
 		self.curwide = wide
-		table.insert( self.lines[#self.lines], item )
+		if self.lines ~= nil then
+			table.insert( self.lines[#self.lines], item )
+		end
 	end
 	
 	self:_PerformLayout()
