@@ -293,7 +293,7 @@ function PANEL:AppendItem( item )
 		self.curwide = self.curwide + wide
 		--fix later.
 		--:283: bad argument #1 to 'insert' (table expected, got nil)
-		if self.lines ~= nil then
+		if self.lines[#self.lines] ~= nil then
 			table.insert( self.lines[#self.lines], item )
 		end
 		self.maxwide = math.max(self.curwide, self.maxwide)
@@ -303,7 +303,7 @@ function PANEL:AppendItem( item )
 		table.insert(self.lines, {})
 		self.maxwide = math.max(self.curwide, self.maxwide)
 		self.curwide = wide
-		if self.lines ~= nil then
+		if self.lines[#self.lines] ~= nil then
 			table.insert( self.lines[#self.lines], item )
 		end
 	end
