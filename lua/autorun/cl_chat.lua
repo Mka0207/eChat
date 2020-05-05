@@ -555,7 +555,7 @@ function chat.AddText(...)
 				end
 				
 				--HTML Emojis
-				if letter == "html_test" then
+				--[[if letter == "html_test" then
 					eChat.chatLog:AppendFunc(function(h)
 						local panel = vgui.Create( "DHTML" )
 						panel:SetSize( 28, h )
@@ -566,7 +566,7 @@ function chat.AddText(...)
 						return {panel = panel, h = -28/2+h/2+bar_spacing/2, w = h}
 					end)
 					continue
-				end
+				end]]
 				
 				if #letter == 0 then continue end
 				
@@ -581,13 +581,13 @@ function chat.AddText(...)
 					local panel = vgui.Create( "DLabel" )
 					panel:SetSize(eChat.chatLog:GetCanvas():GetWide(), h)
 					panel:SetFont("eChatFontText")
-					--panel:SetColor(Color(0,0,0,0))
+					panel:SetColor(Color(0,0,0,0))
 					panel.LastColor = lastclr
 					panel:SetText(letter.." ")
 					panel.SetTime = CurTime() + eChat.config.fadeTime
 					panel.Think = function() HidePanels(panel) end
 					
-					--[[panel.Paint = function(self,w,h)
+					panel.Paint = function(self,w,h)
 						surface.SetFont("eChatFontText")
 
 						local message = letter.." "
@@ -614,7 +614,7 @@ function chat.AddText(...)
 							surface.SetTextPos( 0, height/2 ) 
 							surface.DrawText( message )	
 						end
-					end]]
+					end
 	
 					local w2, h2 = panel:GetTextSize()
 					
