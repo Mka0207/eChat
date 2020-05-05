@@ -45,7 +45,7 @@ eChat.CreateFonts = function()
 	
 	surface.CreateFont( "eChatFontText", {
 		font = "Arial",
-		size = screenscale*18,
+		size = 18,
 		weight = 660,
 		underline = false,
 		antialias = true,
@@ -54,7 +54,7 @@ eChat.CreateFonts = function()
 
 	surface.CreateFont( "eChatFontHeader", {
 		font = "Arial",
-		size = screenscale*20,
+		size = 20,
 		weight = 665,
 		underline = false,
 		antialias = true,
@@ -63,7 +63,7 @@ eChat.CreateFonts = function()
 
 	surface.CreateFont( "eChatFont", {
 		font = "Verdana",
-		size = screenscale*16,
+		size = 16,
 		weight = 500,
 		underline = false,
 		antialias = false,
@@ -72,7 +72,7 @@ eChat.CreateFonts = function()
 
 	surface.CreateFont( "eChat_Links", {
 		font = "Verdana",
-		size = screenscale*16,
+		size = 16,
 		weight = 500,
 		underline = false,
 		antialias = false,
