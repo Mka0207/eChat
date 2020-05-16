@@ -706,7 +706,7 @@ function chat.AddText(...)
 					end)
 				end
 				
-				if eChat.config.seeChatTags then
+				if eChat.config.seeChatTags and ply.GetChatTagColor then
 					local col = ply:GetChatTagColor()
 					local tbl = col:ToTable()
 
@@ -718,7 +718,7 @@ function chat.AddText(...)
 						panel.SetTime = CurTime() + eChat.config.fadeTime
 						panel.Think = function() HidePanels(panel) end
 						
-						if ply:HasChatTag() then
+						if ply.HasChatTag and ply:HasChatTag() then
 							panel:SetColor( Color( tbl[1], tbl[2], tbl[3], tbl[4] ) )
 							panel:SetText( "[ "..ply:GetChatTag().." ] " )
 						else
