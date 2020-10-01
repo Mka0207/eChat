@@ -20,6 +20,7 @@ DefaultTag["dedicated"]		= { "Dedicated",	Color(189, 195, 199) }
 DefaultTag["member"]		= { "Member",		Color(189, 195, 199) }
 DefaultTag["dev_team"]		= { "Dev Team",	Color(255, 0, 0) }
 DefaultTag["dev_trainee"]		= { "Developer",	Color(255, 0, 0) }
+DefaultTag["subscriber"]		= { "Subscriber",	Color(248, 252, 3) }
 
 -- Thanks jetboom
 local function BetterScreenScale()
