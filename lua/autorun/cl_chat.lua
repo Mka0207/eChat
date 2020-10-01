@@ -489,6 +489,14 @@ local function EmojiCheck(text)
 		end
 	end
 	
+	if LocalPlayer():IsStandardSubscriber() then
+		for wrds, img in pairs( eChat.SubscriberEmojis ) do
+			if text == wrds then
+				return true, wrds, img
+			end
+		end
+	end
+	
 	return false, "", nil
 end
 
