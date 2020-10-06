@@ -551,8 +551,10 @@ function chat.AddText(...)
 				if _ == 1 and letter == ":" then letter = ": " end
 
 				local plyr = 0
-				if  tbl[1].IsPlayer and tbl[1]:IsPlayer() then
-					plyr = tbl[1]
+				if type(tbl[1]) ~= 'string' then
+					if tbl[1].IsPlayer and tbl[1]:IsPlayer() then
+						plyr = tbl[1]
+					end
 				end
 				--insert emojis
 				local em_check, em_wrd, em_img = EmojiCheck(letter,plyr)
