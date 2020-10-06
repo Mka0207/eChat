@@ -483,14 +483,14 @@ local matGradientLeft = CreateMaterial("gradient-l", "UnlitGeneric", {["$basetex
 --Allow emojis in tags.
 --Trim spaces and fix text being inserted backwards etc.
 	
-local function EmojiCheck(text)
+local function EmojiCheck(text,pl)
 	for wrds, img in pairs( eChat.Emojis ) do
 		if text == wrds then
 			return true, wrds, img
 		end
 	end
 	
-	if LocalPlayer():IsStandardSubscriber() then
+	if pl:IsStandardSubscriber() then
 		for wrds, img in pairs( eChat.SubscriberEmojis ) do
 			if text == wrds then
 				return true, wrds, img
@@ -543,13 +543,13 @@ function chat.AddText(...)
 			--eChat.chatLog:InsertColorChange( obj.r, obj.g, obj.b, obj.a )
 		elseif type(obj) == "string"  then
 			--eChat.chatLog:AppendText( language.GetPhrase( obj ) )
-			
+			local tbl = {...}
 			for _, letter in ipairs( string.Explode( " ", obj ) ) do
 				--fix the spacing
 				if _ == 1 and letter == ":" then letter = ": " end
 				
 				--insert emojis
-				local em_check, em_wrd, em_img = EmojiCheck(letter)
+				local em_check, em_wrd, em_img = EmojiCheck(letter,tbl[1])
 				if ( em_check == true ) then
 					eChat.chatLog:AppendFunc(function(h)
 						local panel = vgui.Create( "DImage" )
