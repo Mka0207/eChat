@@ -490,10 +490,12 @@ local function EmojiCheck(text,pl)
 		end
 	end
 	
-	if pl:IsStandardSubscriber() then
-		for wrds, img in pairs( eChat.SubscriberEmojis ) do
-			if text == wrds then
-				return true, wrds, img
+	if pl ~= 0 then
+		if pl:IsStandardSubscriber() then
+			for wrds, img in pairs( eChat.SubscriberEmojis ) do
+				if text == wrds then
+					return true, wrds, img
+				end
 			end
 		end
 	end
@@ -547,9 +549,13 @@ function chat.AddText(...)
 			for _, letter in ipairs( string.Explode( " ", obj ) ) do
 				--fix the spacing
 				if _ == 1 and letter == ":" then letter = ": " end
-				
+
+				local plyr = 0
+				if  tbl[1].IsPlayer and tbl[1]:IsPlayer() then
+					plyr = tbl[1]
+				end
 				--insert emojis
-				local em_check, em_wrd, em_img = EmojiCheck(letter,tbl[1])
+				local em_check, em_wrd, em_img = EmojiCheck(letter,plyr)
 				if ( em_check == true ) then
 					eChat.chatLog:AppendFunc(function(h)
 						local panel = vgui.Create( "DImage" )
