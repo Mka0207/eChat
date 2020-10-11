@@ -482,10 +482,25 @@ local matGradientLeft = CreateMaterial("gradient-l", "UnlitGeneric", {["$basetex
 --TODO: Setup support for appending html panels
 --Allow emojis in tags.
 --Trim spaces and fix text being inserted backwards etc.
+
+hook.Add("PlayerSpawn", "eChat.SyncEmojiEffect.FWKZT", function(pl)
+	pl.CurrentEmoji = ""
+end )
+
+local function CreateEmojiEffect(pl,img)
+	if pl:Alive() then
+		local effectdata = EffectData()
+		effectdata:SetOrigin(pl:EyePos())
+		effectdata:SetEntity(pl)
+		pl.CurrentEmoji = img
+		util.Effect("emoji", effectdata)
+	end
+end
 	
 local function EmojiCheck(text,pl)
 	for wrds, img in pairs( eChat.Emojis ) do
 		if text == wrds then
+			CreateEmojiEffect(pl,img)
 			return true, wrds, img
 		end
 	end
@@ -494,6 +509,7 @@ local function EmojiCheck(text,pl)
 		if pl:IsStandardSubscriber() then
 			for wrds, img in pairs( eChat.SubscriberEmojis ) do
 				if text == wrds then
+					CreateEmojiEffect(pl,img)
 					return true, wrds, img
 				end
 			end
