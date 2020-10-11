@@ -500,7 +500,9 @@ end
 local function EmojiCheck(text,pl)
 	for wrds, img in pairs( eChat.Emojis ) do
 		if text == wrds then
-			CreateEmojiEffect(pl,img)
+			if pl:IsStandardSubscriber() then
+				CreateEmojiEffect(pl,img)
+			end
 			return true, wrds, img
 		end
 	end
