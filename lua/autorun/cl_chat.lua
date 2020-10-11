@@ -503,6 +503,9 @@ local function EmojiCheck(text,pl)
 			if pl ~= 0 then
 				if pl:IsStandardSubscriber() then
 					CreateEmojiEffect(pl,img)
+				else
+					pl:ChatPrint("You must be a subscriber to use those emojis!")
+					pl:ChatPrint("Purchase it @ https://fwkzt.com/store/")
 				end
 			end
 			return true, wrds, img
