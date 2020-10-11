@@ -520,6 +520,9 @@ local function EmojiCheck(text,pl)
 					return true, wrds, img
 				end
 			end
+		else
+			pl:ChatPrint("You must be a subscriber to use those emojis!")
+			pl:ChatPrint("Purchase it @ https://fwkzt.com/store/")
 		end
 	end
 	
