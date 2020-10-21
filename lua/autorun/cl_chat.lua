@@ -257,8 +257,9 @@ function eChat.buildBox()
 				end
 			end]]
 		--else
-		if gui.IsGameUIVisible() or FWKZT_MOTD_PANEL:IsValid() then
-			if eChat then
+		if gui.IsGameUIVisible() or FWKZT_MOTD_PANEL and FWKZT_MOTD_PANEL:IsValid() then
+
+			if eChat ~= nil then
 				eChat.hideBox()
 				local children = eChat.chatLog:GetChildren()
 				for _, pnl in pairs( children ) do
