@@ -247,7 +247,7 @@ function eChat.buildBox()
 		draw.RoundedBox( 0, 0, 0, w, h, Color( 30, 30, 30, 100 ) )
 	end
 	eChat.chatLog.Think = function( self )
-		--if not gui.IsGameUIVisible() then
+		if not gui.IsGameUIVisible() then
 			--[[if eChat.lastMessage then
 				if CurTime() - eChat.lastMessage > eChat.config.fadeTime then
 					self:SetVisible( false )
@@ -256,17 +256,8 @@ function eChat.buildBox()
 					eChat.chatLog:GotoTextEnd()
 				end
 			end]]
-		--else
-		if gui.IsGameUIVisible() or ( FWKZT_MOTD_PANEL and FWKZT_MOTD_PANEL:IsValid() ) then
+		else
 			eChat.hideBox()
-			local children = eChat.chatLog:GetChildren()
-			for _, pnl in pairs( children ) do
-				--if pnl != eChat.chatLog then
-				if pnl:IsVisible() then
-					pnl:SetVisible( false )
-				end
-				--end
-			end
 		end
 	end
 	eChat.chatLog.PerformLayout = function( self )
@@ -377,15 +368,6 @@ function eChat.showBox()
 		if pnl == eChat.frame.btnMaxim or pnl == eChat.frame.btnClose or pnl == eChat.frame.btnMinim then continue end
 		
 		pnl:SetVisible( true )
-	end
-
-	local children = eChat.chatLog:GetChildren()
-	for _, pnl in pairs( children ) do
-		--if pnl != eChat.chatLog then
-		if not pnl:IsVisible() then
-			pnl:SetVisible( true )
-		end
-		--end
 	end
 	
 	-- MakePopup calls the input functions so we don't need to call those
@@ -518,9 +500,14 @@ end
 local function EmojiCheck(text,pl)
 	for wrds, img in pairs( eChat.Emojis ) do
 		if text == wrds then
-			--if pl:IsStandardSubscriber() then
-				CreateEmojiEffect(pl,img)
-			--end
+			if pl ~= 0 then
+				if pl:IsStandardSubscriber() then
+					CreateEmojiEffect(pl,img)
+				--else
+					--pl:ChatPrint("You must be a subscriber to use those emojis!")
+					--pl:ChatPrint("Purchase it @ https://fwkzt.com/store/")
+				end
+			end
 			return true, wrds, img
 		end
 	end
@@ -533,6 +520,9 @@ local function EmojiCheck(text,pl)
 					return true, wrds, img
 				end
 			end
+		--else
+			--pl:ChatPrint("You must be a subscriber to use those emojis!")
+			--pl:ChatPrint("Purchase it @ https://fwkzt.com/store/")
 		end
 	end
 	
@@ -745,7 +735,12 @@ function chat.AddText(...)
 					eChat.chatLog:AppendFunc(function(h)
 						local panel = vgui.Create( "AvatarImage" )
 						panel:SetSize(28, 28)
-						panel:SetPlayer( ply, 28 )
+						local incog = ply:GetNWBool( 'Admin_Incognito', false )
+						if incog != true then
+							panel:SetPlayer(ply, 28)
+						else
+							panel:SetSteamID( ply:GetNWString('Profile'), 28 )
+						end
 						panel.SetTime = CurTime() + eChat.config.fadeTime
 						panel.Think = function() HidePanels(panel) end
 						panel.PaintOver = function(self,w,h)
@@ -771,14 +766,17 @@ function chat.AddText(...)
 						panel.SetTime = CurTime() + eChat.config.fadeTime
 						panel.Think = function() HidePanels(panel) end
 						
-						if ply.HasChatTag and ply:HasChatTag() then
-							panel:SetColor( Color( tbl[1], tbl[2], tbl[3], tbl[4] ) )
-							panel:SetText( "[ "..ply:GetChatTag().." ] " )
-						else
-							local DTag = DefaultTag[ string.lower( ply:GetUserGroup() ) ]
-							if DTag then
-								panel:SetColor( DTag[2] )
-								panel:SetText( "["..DTag[1].."] " )
+						local incog = ply:GetNWBool( 'Admin_Incognito', false )
+						if incog != true then
+							if ply.HasChatTag and ply:HasChatTag() then
+								panel:SetColor( Color( tbl[1], tbl[2], tbl[3], tbl[4] ) )
+								panel:SetText( "[ "..ply:GetChatTag().." ] " )
+							else
+								local DTag = DefaultTag[ string.lower( ply:GetUserGroup() ) ]
+								if DTag then
+									panel:SetColor( DTag[2] )
+									panel:SetText( "["..DTag[1].."] " )
+								end
 							end
 						end
 						local w2, h2 = panel:GetTextSize()
