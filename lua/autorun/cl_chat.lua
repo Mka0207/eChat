@@ -503,9 +503,9 @@ local function EmojiCheck(text,pl)
 			if pl ~= 0 then
 				if pl:IsStandardSubscriber() then
 					CreateEmojiEffect(pl,img)
-				else
-					pl:ChatPrint("You must be a subscriber to use those emojis!")
-					pl:ChatPrint("Purchase it @ https://fwkzt.com/store/")
+				--else
+					--pl:ChatPrint("You must be a subscriber to use those emojis!")
+					--pl:ChatPrint("Purchase it @ https://fwkzt.com/store/")
 				end
 			end
 			return true, wrds, img
@@ -520,9 +520,9 @@ local function EmojiCheck(text,pl)
 					return true, wrds, img
 				end
 			end
-		else
-			pl:ChatPrint("You must be a subscriber to use those emojis!")
-			pl:ChatPrint("Purchase it @ https://fwkzt.com/store/")
+		--else
+			--pl:ChatPrint("You must be a subscriber to use those emojis!")
+			--pl:ChatPrint("Purchase it @ https://fwkzt.com/store/")
 		end
 	end
 	
@@ -766,14 +766,17 @@ function chat.AddText(...)
 						panel.SetTime = CurTime() + eChat.config.fadeTime
 						panel.Think = function() HidePanels(panel) end
 						
-						if ply.HasChatTag and ply:HasChatTag() then
-							panel:SetColor( Color( tbl[1], tbl[2], tbl[3], tbl[4] ) )
-							panel:SetText( "[ "..ply:GetChatTag().." ] " )
-						else
-							local DTag = DefaultTag[ string.lower( ply:GetUserGroup() ) ]
-							if DTag then
-								panel:SetColor( DTag[2] )
-								panel:SetText( "["..DTag[1].."] " )
+						local incog = ply:GetNWBool( 'Admin_Incognito', false )
+						if incog != true then
+							if ply.HasChatTag and ply:HasChatTag() then
+								panel:SetColor( Color( tbl[1], tbl[2], tbl[3], tbl[4] ) )
+								panel:SetText( "[ "..ply:GetChatTag().." ] " )
+							else
+								local DTag = DefaultTag[ string.lower( ply:GetUserGroup() ) ]
+								if DTag then
+									panel:SetColor( DTag[2] )
+									panel:SetText( "["..DTag[1].."] " )
+								end
 							end
 						end
 						local w2, h2 = panel:GetTextSize()
