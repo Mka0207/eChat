@@ -88,12 +88,15 @@ resource.AddFile( "materials/fwkzt/emojis/thonk.png" )
 
 --TODO: loop through emojis folder and resource add all jpeg/pngs.
 
+hook.Remove("PlayerSay", "FilterEmonjis")
 hook.Add( "PlayerSay", "FilterEmonjis", function( ply, text )
-
-	if ply.HasChatTag and ply:HasChatTag() then
-		PrintMessage(HUD_PRINTCONSOLE, "("..ply:SteamID()..") ".."["..ply:GetChatTag().."] "..ply:Nick().. ": "..text)
-	else
-		PrintMessage(HUD_PRINTCONSOLE, "("..ply:SteamID()..") "..ply:Nick().. ": "..text)
+	local incog = ply:GetNWBool( 'Admin_Incognito', false )
+	if incog != true then
+		if ply.HasChatTag and ply:HasChatTag() then
+			PrintMessage(HUD_PRINTCONSOLE, "("..ply:SteamID()..") ".."["..ply:GetChatTag().."] "..ply:Nick().. ": "..text)
+		else
+			PrintMessage(HUD_PRINTCONSOLE, "("..ply:SteamID()..") "..ply:Nick().. ": "..text)
+		end
 	end
 	
 	--TODO: only pass non url text.
