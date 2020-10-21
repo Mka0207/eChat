@@ -258,14 +258,16 @@ function eChat.buildBox()
 			end]]
 		--else
 		if gui.IsGameUIVisible() or FWKZT_MOTD_PANEL:IsValid() then
-			eChat.hideBox()
-			local children = eChat.chatLog:GetChildren()
-			for _, pnl in pairs( children ) do
-				--if pnl != eChat.chatLog then
-				if pnl:IsVisible() then
-					pnl:SetVisible( false )
+			if eChat then
+				eChat.hideBox()
+				local children = eChat.chatLog:GetChildren()
+				for _, pnl in pairs( children ) do
+					--if pnl != eChat.chatLog then
+					if pnl:IsVisible() then
+						pnl:SetVisible( false )
+					end
+					--end
 				end
-				--end
 			end
 		end
 	end
