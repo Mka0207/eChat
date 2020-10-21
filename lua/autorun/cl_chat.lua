@@ -735,7 +735,12 @@ function chat.AddText(...)
 					eChat.chatLog:AppendFunc(function(h)
 						local panel = vgui.Create( "AvatarImage" )
 						panel:SetSize(28, 28)
-						panel:SetPlayer( ply, 28 )
+						local incog = ply:GetNWBool( 'Admin_Incognito', false )
+						if incog != true then
+							panel:SetPlayer(ply, 28)
+						else
+							panel:SetSteamID( ply:GetNWString('Profile'), 28 )
+						end
 						panel.SetTime = CurTime() + eChat.config.fadeTime
 						panel.Think = function() HidePanels(panel) end
 						panel.PaintOver = function(self,w,h)
