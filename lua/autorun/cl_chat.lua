@@ -247,7 +247,7 @@ function eChat.buildBox()
 		draw.RoundedBox( 0, 0, 0, w, h, Color( 30, 30, 30, 100 ) )
 	end
 	eChat.chatLog.Think = function( self )
-		if not gui.IsGameUIVisible() then
+		--if not gui.IsGameUIVisible() then
 			--[[if eChat.lastMessage then
 				if CurTime() - eChat.lastMessage > eChat.config.fadeTime then
 					self:SetVisible( false )
@@ -256,8 +256,17 @@ function eChat.buildBox()
 					eChat.chatLog:GotoTextEnd()
 				end
 			end]]
-		else
+		--else
+		if gui.IsGameUIVisible() or FWKZT_MOTD_PANEL:IsValid() then
 			eChat.hideBox()
+			local children = eChat.chatLog:GetChildren()
+			for _, pnl in pairs( children ) do
+				--if pnl != eChat.chatLog then
+				if pnl:IsVisible() then
+					pnl:SetVisible( false )
+				end
+				--end
+			end
 		end
 	end
 	eChat.chatLog.PerformLayout = function( self )
@@ -368,6 +377,15 @@ function eChat.showBox()
 		if pnl == eChat.frame.btnMaxim or pnl == eChat.frame.btnClose or pnl == eChat.frame.btnMinim then continue end
 		
 		pnl:SetVisible( true )
+	end
+
+	local children = eChat.chatLog:GetChildren()
+	for _, pnl in pairs( children ) do
+		--if pnl != eChat.chatLog then
+		if not pnl:IsVisible() then
+			pnl:SetVisible( true )
+		end
+		--end
 	end
 	
 	-- MakePopup calls the input functions so we don't need to call those
@@ -520,9 +538,6 @@ local function EmojiCheck(text,pl)
 					return true, wrds, img
 				end
 			end
-		--else
-			--pl:ChatPrint("You must be a subscriber to use those emojis!")
-			--pl:ChatPrint("Purchase it @ https://fwkzt.com/store/")
 		end
 	end
 	
