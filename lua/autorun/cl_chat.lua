@@ -257,8 +257,7 @@ function eChat.buildBox()
 				end
 			end]]
 		--else
-		if gui.IsGameUIVisible() or FWKZT_MOTD_PANEL and FWKZT_MOTD_PANEL:IsValid() then
-
+		--[[if gui.IsGameUIVisible() or FWKZT_MOTD_PANEL and FWKZT_MOTD_PANEL:IsValid() and FWKZT_MOTD_PANEL:IsVisible() then
 			if eChat ~= nil then
 				eChat.hideBox()
 				local children = eChat.chatLog:GetChildren()
@@ -270,7 +269,7 @@ function eChat.buildBox()
 					--end
 				end
 			end
-		end
+		end]]
 	end
 	eChat.chatLog.PerformLayout = function( self )
 		self:SetFontInternal("eChatFontText")
@@ -382,14 +381,14 @@ function eChat.showBox()
 		pnl:SetVisible( true )
 	end
 
-	local children = eChat.chatLog:GetChildren()
+	--[[local children = eChat.chatLog:GetChildren()
 	for _, pnl in pairs( children ) do
 		--if pnl != eChat.chatLog then
 		if not pnl:IsVisible() then
 			pnl:SetVisible( true )
 		end
 		--end
-	end
+	end]]
 	
 	-- MakePopup calls the input functions so we don't need to call those
 	eChat.frame:MakePopup()
