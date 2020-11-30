@@ -518,31 +518,26 @@ local function CreateEmojiEffect(pl,img)
 end
 	
 local function EmojiCheck(text,pl)
+	if pl == 0 then return false, "", nil end
+
 	for wrds, img in pairs( eChat.Emojis ) do
 		if text == wrds then
-			if pl ~= 0 then
-				if pl:IsStandardSubscriber() then
-					CreateEmojiEffect(pl,img)
-				--else
-					--pl:ChatPrint("You must be a subscriber to use those emojis!")
-					--pl:ChatPrint("Purchase it @ https://fwkzt.com/store/")
-				end
+			if pl:IsStandardSubscriber() then
+				CreateEmojiEffect(pl,img)
 			end
 			return true, wrds, img
 		end
 	end
 	
-	if pl ~= 0 then
-		if pl:IsStandardSubscriber() then
-			for wrds, img in pairs( eChat.SubscriberEmojis ) do
-				if text == wrds then
-					CreateEmojiEffect(pl,img)
-					return true, wrds, img
-				end
+	if pl:IsStandardSubscriber() then
+		for wrds, img in pairs( eChat.SubscriberEmojis ) do
+			if text == wrds then
+				CreateEmojiEffect(pl,img)
+				return true, wrds, img
 			end
 		end
 	end
-	
+
 	return false, "", nil
 end
 
@@ -594,11 +589,14 @@ function chat.AddText(...)
 				if _ == 1 and letter == ":" then letter = ": " end
 
 				local plyr = 0
-				if type(tbl[1]) == 'Player' then
-					if tbl[1].IsPlayer and tbl[1]:IsPlayer() then
-						plyr = tbl[1]
+				for _, str in ipairs( tbl ) do
+					if type( str ) == "Player" then
+						if str.IsPlayer and str:IsPlayer() then
+							plyr = str
+						end
 					end
 				end
+				
 				--insert emojis
 				local em_check, em_wrd, em_img = EmojiCheck(letter,plyr)
 				if ( em_check == true ) then
