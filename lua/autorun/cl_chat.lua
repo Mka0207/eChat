@@ -884,10 +884,12 @@ end)
  --// Modify the Chatbox for align.
 local oldGetChatBoxPos = chat.GetChatBoxPos
 function chat.GetChatBoxPos()
+	if not eChat.frame then return end
 	return eChat.frame:GetPos()
 end
 
 function chat.GetChatBoxSize()
+	if not eChat.frame then return end
 	return eChat.frame:GetSize()
 end
 
