@@ -129,6 +129,8 @@ function eChat.buildBox()
 			eChat.hideBox()
 		end
 	end
+
+	eChat.frame:ParentToHUD()
 	
 	local serverName = vgui.Create("DLabel", eChat.frame)
 	serverName:SetText( "FWKZT.com" )
