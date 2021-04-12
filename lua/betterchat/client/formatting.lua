@@ -4,6 +4,7 @@ local f = bc.formatting
 local DefaultTag = {}
 DefaultTag["founder"]		= { "Founder",		Color(240,230,45) }
 DefaultTag["super_admin"]	= { "Super Admin",	Color(240,230,45) }
+DefaultTag["superadmin"]	= DefaultTag["super_admin"]
 DefaultTag["manager"]		= { "Manager",	Color(240,230,45) }
 DefaultTag["admin"]			= { "Admin",		Color(240,230,45) }
 DefaultTag["staff"]			= { "Staff",		Color(240,230,45) }
