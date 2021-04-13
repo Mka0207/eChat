@@ -54,7 +54,9 @@ net.Receive( "BC_LM", function()
     if channelType == bc.defines.channelTypes.TEAM then
         local ply = data[1]
         if ply and ply:IsValid() and ply:IsPlayer() and ply:Team() == LocalPlayer():Team() then return end
-        message = { bc.defines.theme.logsPrefix, "Team:" .. team.GetName( ply:Team() ), bc.defines.colors.white, " | ", unpack( data ) }
+        if ply and ply:IsValid() and ply:IsPlayer() then
+            message = { bc.defines.theme.logsPrefix, "Team:" .. team.GetName( ply:Team() ), bc.defines.colors.white, " | ", unpack( data ) }
+        end
     elseif channelType == bc.defines.channelTypes.PRIVATE then
         local from = data[1]
         local to = data[3]
